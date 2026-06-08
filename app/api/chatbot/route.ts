@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const SYSTEM_PROMPT = `Tu es NexBot, l'assistant IA intégré dans Nexflow — plateforme de qualification des appels entrants pour agences immobilières en Côte d'Ivoire.
 
@@ -13,24 +13,40 @@ Règles :
 - Donne des exemples concrets adaptés au contexte ivoirien
 - Contact support : support.nexflow@gmail.com | WhatsApp : +225 07 77 842 576`
 
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json()
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-    const response = await client.messages.create({
-      model: 'claude-opus-4-8',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages,
+    const { messages }: { messages: ChatMessage[] } = await req.json()
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: SYSTEM_PROMPT,
     })
-    const message = (response.content[0] as { type: string; text: string }).text
+
+    // Sépare l'historique (tous sauf le dernier) du message courant
+    const history = messages.slice(0, -1).map((msg) => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
+    }))
+
+    const lastMessage = messages[messages.length - 1]
+
+    const chat = model.startChat({ history })
+    const result = await chat.sendMessage(lastMessage.content)
+    const message = result.response.text()
+
     return NextResponse.json({ message })
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    const stack   = error instanceof Error ? error.stack   : undefined
-    console.error('[chatbot] Error message:', message)
+    const errMsg = error instanceof Error ? error.message : String(error)
+    const stack  = error instanceof Error ? error.stack   : undefined
+    console.error('[chatbot] Error message:', errMsg)
     console.error('[chatbot] Error stack:',   stack)
-    console.error('[chatbot] ANTHROPIC_API_KEY set:', !!process.env.ANTHROPIC_API_KEY)
+    console.error('[chatbot] GEMINI_API_KEY set:', !!process.env.GEMINI_API_KEY)
     return NextResponse.json({ error: 'Erreur lors de la génération de la réponse' }, { status: 500 })
   }
 }
