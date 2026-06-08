@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const SYSTEM_PROMPT = `Tu es NexBot, l'assistant IA intégré dans Nexflow — plateforme de qualification des appels entrants pour agences immobilières en Côte d'Ivoire.
 
@@ -13,37 +12,39 @@ Règles :
 - Donne des exemples concrets adaptés au contexte ivoirien
 - Contact support : support.nexflow@gmail.com | WhatsApp : +225 07 77 842 576`
 
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { messages }: { messages: ChatMessage[] } = await req.json()
+    const { messages } = await req.json()
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: SYSTEM_PROMPT,
+    const apiKey = process.env.GEMINI_API_KEY
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`
+
+    const contents = messages.map((m: { role: string; content: string }) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }))
+
+    // S'assurer que le premier message est 'user'
+    const firstUserIndex = contents.findIndex((c: { role: string }) => c.role === 'user')
+    const filteredContents = firstUserIndex >= 0 ? contents.slice(firstUserIndex) : contents
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: filteredContents
+      })
     })
 
-    // Sépare l'historique (tous sauf le dernier) du message courant
-    // Gemini exige que history[0] soit toujours role 'user'
-    let history = messages.slice(0, -1).map((msg) => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }],
-    }))
-    while (history.length > 0 && history[0].role === 'model') {
-      history = history.slice(1)
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error('[chatbot] Gemini API error:', JSON.stringify(data))
+      return NextResponse.json({ error: 'Erreur Gemini API' }, { status: 500 })
     }
 
-    const lastMessage = messages[messages.length - 1]
-
-    const chat = model.startChat({ history })
-    const result = await chat.sendMessage(lastMessage.content)
-    const message = result.response.text()
-
+    const message = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Pas de réponse.'
     return NextResponse.json({ message })
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error)
