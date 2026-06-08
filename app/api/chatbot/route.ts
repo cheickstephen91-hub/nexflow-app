@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
     const message = (response.content[0] as { type: string; text: string }).text
     return NextResponse.json({ message })
   } catch (error) {
-    console.error('[chatbot] Error:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    const stack   = error instanceof Error ? error.stack   : undefined
+    console.error('[chatbot] Error message:', message)
+    console.error('[chatbot] Error stack:',   stack)
+    console.error('[chatbot] ANTHROPIC_API_KEY set:', !!process.env.ANTHROPIC_API_KEY)
     return NextResponse.json({ error: 'Erreur lors de la génération de la réponse' }, { status: 500 })
   }
 }
