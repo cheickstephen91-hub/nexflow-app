@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Requis pour Netlify + routes API Next.js (middleware, server actions)
+  output: "standalone",
 };
 
 export default nextConfig;
