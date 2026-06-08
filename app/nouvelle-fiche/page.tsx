@@ -327,7 +327,10 @@ export default function NouvelleFiche() {
     setError(null)
     setLoading(true)
 
-    const { error: sbError } = await supabase.from('fiches').insert([form])
+    const { error: sbError } = await supabase.from('fiches').insert([{
+      ...form,
+      user_email: session?.user?.email ?? null,
+    }])
 
     if (sbError) {
       setError(sbError.message)

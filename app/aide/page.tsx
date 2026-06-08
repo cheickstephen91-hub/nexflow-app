@@ -1,4 +1,6 @@
-import Link from 'next/link'
+'use client'
+
+import { useState } from 'react'
 import { NavHeader } from '@/components/nav-header'
 
 const STEPS = [
@@ -37,6 +39,9 @@ const FAQ: { q: string; r: string }[] = [
 ]
 
 export default function Aide() {
+  const [openStep, setOpenStep] = useState<number | null>(null)
+  const [openFaq,  setOpenFaq]  = useState<number | null>(null)
+
   return (
     <div className="min-h-screen bg-[#0a1a0f] relative">
 
@@ -46,7 +51,6 @@ export default function Aide() {
         <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
       </div>
 
-      {/* Header — client component (rôle-conditionnel) */}
       <NavHeader currentPage="aide" maxWidth="max-w-3xl" />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -57,7 +61,7 @@ export default function Aide() {
 
         {/* ── Guide démarrage ── */}
         <section className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-          <h2 className="text-[#f0fdf4] font-semibold text-base mb-5 flex items-center gap-2">
+          <h2 className="text-[#f0fdf4] font-semibold text-base mb-4 flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-[#22c55e]/20 text-[#22c55e] flex items-center justify-center shrink-0">
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
@@ -66,36 +70,79 @@ export default function Aide() {
                 <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
               </svg>
             </span>
-            Guide de d&eacute;marrage rapide
+            Guide de démarrage rapide
           </h2>
-          <ol className="space-y-4">
-            {STEPS.map((s) => (
-              <li key={s.n} className="flex gap-4">
-                <div className="w-7 h-7 rounded-full bg-[#166534]/50 border border-[#22c55e]/30 text-[#22c55e] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                  {s.n}
-                </div>
-                <div>
-                  <p className="text-[#f0fdf4] text-sm font-semibold">{s.label}</p>
-                  <p className="text-[#86efac]/50 text-xs mt-0.5 leading-relaxed">{s.desc}</p>
-                </div>
-              </li>
-            ))}
+          <ol className="space-y-2">
+            {STEPS.map((s) => {
+              const isOpen = openStep === s.n
+              return (
+                <li key={s.n}>
+                  <button
+                    onClick={() => setOpenStep(isOpen ? null : s.n)}
+                    className="w-full flex items-center gap-3 py-3 px-1 text-left group"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-[#166534]/50 border border-[#22c55e]/30 text-[#22c55e] text-xs font-bold flex items-center justify-center shrink-0">
+                      {s.n}
+                    </div>
+                    <p className="flex-1 text-[#f0fdf4] text-sm font-semibold group-hover:text-[#4ade80] transition-colors">
+                      {s.label}
+                    </p>
+                    <svg
+                      className={`w-4 h-4 text-[#22c55e]/60 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{ maxHeight: isOpen ? '200px' : '0px', opacity: isOpen ? 1 : 0 }}
+                  >
+                    <p className="text-[#86efac]/55 text-xs leading-relaxed pl-10 pb-3 pr-2">
+                      {s.desc}
+                    </p>
+                  </div>
+                  {s.n < STEPS.length && <div className="h-px bg-white/[0.07] ml-10" />}
+                </li>
+              )
+            })}
           </ol>
         </section>
 
         {/* ── FAQ ── */}
         <section className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-          <h2 className="text-[#f0fdf4] font-semibold text-base mb-5">Questions fr&eacute;quentes</h2>
-          <div className="space-y-5">
-            {FAQ.map((item, i) => (
-              <div key={i} className="border-b border-white/10 last:border-0 pb-5 last:pb-0">
-                <p className="text-[#f0fdf4] text-sm font-semibold mb-1.5 flex gap-2">
-                  <span className="text-[#22c55e] shrink-0">Q.</span>
-                  {item.q}
-                </p>
-                <p className="text-[#86efac]/60 text-xs leading-relaxed pl-5">{item.r}</p>
-              </div>
-            ))}
+          <h2 className="text-[#f0fdf4] font-semibold text-base mb-4">Questions fréquentes</h2>
+          <div className="space-y-0">
+            {FAQ.map((item, i) => {
+              const isOpen = openFaq === i
+              return (
+                <div key={i} className={`${i < FAQ.length - 1 ? 'border-b border-white/[0.07]' : ''}`}>
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="w-full flex items-start gap-2 py-4 text-left group"
+                  >
+                    <span className="text-[#22c55e] text-sm font-bold shrink-0 mt-0.5">Q.</span>
+                    <p className="flex-1 text-[#f0fdf4] text-sm font-semibold group-hover:text-[#4ade80] transition-colors">
+                      {item.q}
+                    </p>
+                    <svg
+                      className={`w-4 h-4 text-[#22c55e]/60 shrink-0 mt-0.5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{ maxHeight: isOpen ? '300px' : '0px', opacity: isOpen ? 1 : 0 }}
+                  >
+                    <p className="text-[#86efac]/60 text-xs leading-relaxed pl-5 pb-4">
+                      {item.r}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </section>
 
@@ -104,12 +151,12 @@ export default function Aide() {
           <h2 className="text-[#f0fdf4] font-semibold text-base mb-5">Documentation technique</h2>
           <div className="space-y-4">
             <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10">
-              <p className="text-[#f0fdf4] text-sm font-semibold mb-1">Comment exporter les donn&eacute;es ?</p>
-              <p className="text-[#86efac]/50 text-xs leading-relaxed">Dans le tableau de bord, un bouton &ldquo;Exporter&rdquo; permet de t&eacute;l&eacute;charger toutes les fiches en format Excel ou CSV.</p>
+              <p className="text-[#f0fdf4] text-sm font-semibold mb-1">Comment exporter les données ?</p>
+              <p className="text-[#86efac]/50 text-xs leading-relaxed">Dans le tableau de bord, un bouton &ldquo;Exporter&rdquo; permet de télécharger toutes les fiches en format Excel ou CSV.</p>
             </div>
             <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10">
               <p className="text-[#f0fdf4] text-sm font-semibold mb-1">Comment signaler un bug ?</p>
-              <p className="text-[#86efac]/50 text-xs leading-relaxed">Utilisez le bouton &ldquo;Contacter le support&rdquo; ci-dessous pour nous signaler tout probl&egrave;me.</p>
+              <p className="text-[#86efac]/50 text-xs leading-relaxed">Utilisez le bouton &ldquo;Contacter le support&rdquo; ci-dessous pour nous signaler tout problème.</p>
             </div>
           </div>
         </section>
@@ -117,7 +164,7 @@ export default function Aide() {
         {/* ── Support ── */}
         <section className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
           <h2 className="text-[#f0fdf4] font-semibold text-base mb-2">Support</h2>
-          <p className="text-[#86efac]/50 text-xs mb-5">Notre &eacute;quipe r&eacute;pond dans les 24 heures, du lundi au vendredi.</p>
+          <p className="text-[#86efac]/50 text-xs mb-5">Notre équipe répond dans les 24 heures, du lundi au vendredi.</p>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
               href="https://wa.me/2250777842576"

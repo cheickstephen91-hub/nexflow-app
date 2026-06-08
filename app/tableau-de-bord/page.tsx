@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { supabase, type Fiche } from '@/lib/supabase'
 import { NavHeader } from '@/components/nav-header'
 import { AnalyticsSection } from '@/components/analytics-section'
@@ -204,6 +205,7 @@ function FicheDetailPanel({ fiche, onClose }: { fiche: Fiche; onClose: () => voi
 /* ── page principale ── */
 
 export default function TableauDeBord() {
+  const { data: session, status } = useSession()
   const [fiches, setFiches]               = useState<Fiche[]>([])
   const [loading, setLoading]             = useState(true)
   const [error, setError]                 = useState<string | null>(null)
@@ -221,12 +223,16 @@ export default function TableauDeBord() {
   const [filterDateDu,  setFilterDateDu]  = useState('')
   const [filterDateAu,  setFilterDateAu]  = useState('')
 
-  const fetchFiches = useCallback(async () => {
+  const userEmail = session?.user?.email ?? null
+
+  const fetchFiches = useCallback(async (email: string | null) => {
+    if (!email) return
     setError(null)
     setLoading(true)
     const { data, error: sbError } = await supabase
       .from('fiches')
       .select('*')
+      .eq('user_email', email)
       .order('created_at', { ascending: false })
 
     if (sbError) { setError(sbError.message) }
@@ -235,13 +241,14 @@ export default function TableauDeBord() {
   }, [])
 
   useEffect(() => {
-    fetchFiches()
+    if (status !== 'authenticated' || !userEmail) return
+    fetchFiches(userEmail)
     const channel = supabase
       .channel('fiches-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'fiches' }, () => fetchFiches())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'fiches' }, () => fetchFiches(userEmail))
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [fetchFiches])
+  }, [fetchFiches, status, userEmail])
 
   const total    = fiches.length
   const today    = fiches.filter((f) => f.created_at?.slice(0, 10) === todayISO()).length
@@ -293,7 +300,7 @@ export default function TableauDeBord() {
         maxWidth="max-w-7xl"
         actions={
           <button
-            onClick={fetchFiches}
+            onClick={() => fetchFiches(userEmail)}
             title="Actualiser"
             className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/50 hover:text-white transition-all"
           >

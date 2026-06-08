@@ -150,14 +150,15 @@ export default function Onboarding() {
               <select
                 value={pays}
                 onChange={(e) => setPays(e.target.value)}
-                className="w-full bg-white/5 border border-white/[0.15] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                className="w-full border border-white/[0.15] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                style={{ background: '#0f2918' }}
               >
-                <option value="" disabled>Sélectionner votre pays...</option>
-                <optgroup label="── Afrique ──">
-                  {PAYS_AFRIQUE.map((p) => <option key={p} value={p}>{p}</option>)}
+                <option value="" disabled style={{ background: '#0a1a0f', color: '#86efac' }}>Sélectionner votre pays...</option>
+                <optgroup label="── Afrique ──" style={{ background: '#0a1a0f', color: '#4ade80' }}>
+                  {PAYS_AFRIQUE.map((p) => <option key={p} value={p} style={{ background: '#0a1a0f', color: 'white' }}>{p}</option>)}
                 </optgroup>
-                <optgroup label="── Reste du monde ──">
-                  {AUTRES_PAYS.map((p) => <option key={p} value={p}>{p}</option>)}
+                <optgroup label="── Reste du monde ──" style={{ background: '#0a1a0f', color: '#4ade80' }}>
+                  {AUTRES_PAYS.map((p) => <option key={p} value={p} style={{ background: '#0a1a0f', color: 'white' }}>{p}</option>)}
                 </optgroup>
               </select>
 
@@ -203,7 +204,7 @@ export default function Onboarding() {
                     <input
                       value={nomEntreprise}
                       onChange={(e) => setNomEntreprise(e.target.value)}
-                      placeholder="Ex : Agence W Immobilier"
+                      placeholder="Ex : Mon Agence Immobilier"
                       className="w-full bg-white/5 border border-white/[0.15] text-white placeholder-white/25 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
                     />
                   </div>
@@ -296,7 +297,7 @@ export default function Onboarding() {
                       Enregistrement&hellip;
                     </>
                   ) : (
-                    'Commencer &rarr;'
+                    'Commencer →'
                   )}
                 </button>
               </div>

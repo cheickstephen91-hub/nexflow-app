@@ -11,6 +11,7 @@ export async function GET() {
   }
 
   try {
+    const userEmail = session.user?.email!
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const todayISO = today.toISOString()
@@ -19,10 +20,12 @@ export async function GET() {
       supabaseAdmin
         .from('fiches')
         .select('id', { count: 'exact' })
+        .eq('user_email', userEmail)
         .gte('created_at', todayISO),
       supabaseAdmin
         .from('fiches')
-        .select('id', { count: 'exact' }),
+        .select('id', { count: 'exact' })
+        .eq('user_email', userEmail),
     ])
 
     if (todayRes.error) {

@@ -8,6 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 export type Fiche = {
   id?: string
   created_at?: string
+  user_email?: string
   nom_prospect: string
   telephone: string
   source: string

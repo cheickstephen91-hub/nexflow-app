@@ -62,10 +62,12 @@ export async function GET(req: NextRequest) {
   const startDate = new Date(fromStr + 'T00:00:00.000Z')
   const endDate   = new Date(toStr   + 'T23:59:59.999Z')
 
-  /* Requête Supabase */
+  /* Requête Supabase — filtrée par compte utilisateur */
+  const userEmail = session.user?.email
   const { data, error } = await supabaseAdmin
     .from('fiches')
     .select('created_at, source, urgence, motif')
+    .eq('user_email', userEmail!)
     .gte('created_at', startDate.toISOString())
     .lte('created_at', endDate.toISOString())
     .order('created_at', { ascending: true })
