@@ -29,10 +29,14 @@ export async function POST(req: NextRequest) {
     })
 
     // Sépare l'historique (tous sauf le dernier) du message courant
-    const history = messages.slice(0, -1).map((msg) => ({
+    // Gemini exige que history[0] soit toujours role 'user'
+    let history = messages.slice(0, -1).map((msg) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }))
+    while (history.length > 0 && history[0].role === 'model') {
+      history = history.slice(1)
+    }
 
     const lastMessage = messages[messages.length - 1]
 
