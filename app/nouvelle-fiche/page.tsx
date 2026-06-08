@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { supabase } from '@/lib/supabase'
-import { LOGO_BASE64, LOGO_FORMAT } from '@/lib/logo-agence-base64'
 import { getUserProfile, getAgents, fetchAsDataUrl, type Agent } from '@/lib/user-profile'
 import { NavHeader } from '@/components/nav-header'
 
@@ -71,28 +70,35 @@ async function generatePDF(
   const LOGO_H = 18
   const LOGO_MAX_W = 42
   const LOGO_Y = 10
-  const usedLogoDataUrl = options.logoDataUrl ?? LOGO_BASE64
-  const usedLogoFormat = (options.logoFormat ?? LOGO_FORMAT) as string
-  const usedCompanyName = options.companyName || 'Agence W'
+  const usedLogoDataUrl = options.logoDataUrl ?? null
+  const usedLogoFormat = (options.logoFormat ?? 'JPEG') as string
+  const usedCompanyName = options.companyName || 'Nexflow'
 
-  let logoW = LOGO_MAX_W
-  try {
-    const res = await fetch(usedLogoDataUrl)
-    const blob = await res.blob()
-    const bmp = await createImageBitmap(blob)
-    const ratio = bmp.width / bmp.height
-    logoW = Math.min(LOGO_MAX_W, parseFloat((LOGO_H * ratio).toFixed(2)))
-    bmp.close()
-  } catch {
-    logoW = LOGO_MAX_W
+  if (usedLogoDataUrl) {
+    /* logo uploadé par l'utilisateur */
+    let logoW = LOGO_MAX_W
+    try {
+      const res = await fetch(usedLogoDataUrl)
+      const blob = await res.blob()
+      const bmp = await createImageBitmap(blob)
+      const ratio = bmp.width / bmp.height
+      logoW = Math.min(LOGO_MAX_W, parseFloat((LOGO_H * ratio).toFixed(2)))
+      bmp.close()
+    } catch {
+      logoW = LOGO_MAX_W
+    }
+    doc.addImage(usedLogoDataUrl, usedLogoFormat, 14, LOGO_Y, logoW, LOGO_H)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7)
+    doc.setTextColor(60, 90, 70)
+    doc.text(usedCompanyName, 14 + logoW / 2, LOGO_Y + LOGO_H + 4, { align: 'center' })
+  } else {
+    /* pas de logo : afficher le nom de l'entreprise en texte */
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(13)
+    doc.setTextColor(34, 197, 94)   // vert accent
+    doc.text(usedCompanyName, 14, LOGO_Y + LOGO_H / 2 + 2)
   }
-
-  doc.addImage(usedLogoDataUrl, usedLogoFormat, 14, LOGO_Y, logoW, LOGO_H)
-
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(7)
-  doc.setTextColor(60, 90, 70)
-  doc.text(usedCompanyName, 14 + logoW / 2, LOGO_Y + LOGO_H + 4, { align: 'center' })
 
   /* ── titre central ── */
   doc.setFont('helvetica', 'bold')
