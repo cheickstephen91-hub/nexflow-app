@@ -22,9 +22,9 @@ export async function POST(req: NextRequest) {
   try {
     const { messages }: { messages: ChatMessage[] } = await req.json()
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-1.5-flash',
       systemInstruction: SYSTEM_PROMPT,
     })
 
