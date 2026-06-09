@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
+import { useState, useRef, useEffect } from 'react'
 
 /* ── Types ── */
 
@@ -61,7 +62,212 @@ const IconPlus = (
   </svg>
 )
 
-/* ── Composant ── */
+const IconLogout = (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+)
+
+const IconUser = (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+)
+
+/* ── Helper initiales ── */
+
+function getInitials(name?: string | null, email?: string | null): string {
+  if (name) {
+    const parts = name.trim().split(/\s+/)
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+  if (email) return email.slice(0, 2).toUpperCase()
+  return '?'
+}
+
+/* ── Menu profil ── */
+
+function ProfileMenu() {
+  const { data: session } = useSession()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const name     = session?.user?.name
+  const email    = session?.user?.email
+  const initials = getInitials(name, email)
+
+  // Ferme le dropdown si clic en dehors
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  if (!session) return null
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      {/* Avatar bouton */}
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label="Menu profil"
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '50%',
+          background: '#22c55e',
+          color: 'white',
+          fontWeight: 700,
+          fontSize: '13px',
+          border: '2px solid rgba(34,197,94,0.4)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          transition: 'box-shadow 0.2s',
+          boxShadow: open ? '0 0 0 3px rgba(34,197,94,0.25)' : 'none',
+        }}
+      >
+        {initials}
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 10px)',
+            right: 0,
+            minWidth: '220px',
+            background: 'rgba(10,26,15,0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(34,197,94,0.2)',
+            borderRadius: '12px',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.05)',
+            zIndex: 100,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Infos utilisateur */}
+          <div style={{ padding: '12px 14px 10px' }}>
+            <p style={{ color: '#f0fdf4', fontWeight: 600, fontSize: '13px', margin: 0, lineHeight: 1.3 }}>
+              {name ?? 'Utilisateur'}
+            </p>
+            <p style={{ color: 'rgba(134,239,172,0.5)', fontSize: '11px', margin: '2px 0 0', lineHeight: 1 }}>
+              {email}
+            </p>
+          </div>
+
+          {/* Séparateur */}
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', margin: '0 8px' }} />
+
+          {/* Liens */}
+          <div style={{ padding: '6px' }}>
+            <Link
+              href="/parametres"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 10px',
+                borderRadius: '8px',
+                color: 'rgba(240,253,244,0.8)',
+                fontSize: '13px',
+                textDecoration: 'none',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(34,197,94,0.1)'
+                ;(e.currentTarget as HTMLAnchorElement).style.color = '#4ade80'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'
+                ;(e.currentTarget as HTMLAnchorElement).style.color = 'rgba(240,253,244,0.8)'
+              }}
+            >
+              {IconUser}
+              Mon profil
+            </Link>
+
+            <Link
+              href="/parametres"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 10px',
+                borderRadius: '8px',
+                color: 'rgba(240,253,244,0.8)',
+                fontSize: '13px',
+                textDecoration: 'none',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(34,197,94,0.1)'
+                ;(e.currentTarget as HTMLAnchorElement).style.color = '#4ade80'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'
+                ;(e.currentTarget as HTMLAnchorElement).style.color = 'rgba(240,253,244,0.8)'
+              }}
+            >
+              {IconSettings}
+              Paramètres
+            </Link>
+          </div>
+
+          {/* Séparateur */}
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', margin: '0 8px' }} />
+
+          {/* Déconnexion */}
+          <div style={{ padding: '6px' }}>
+            <button
+              onClick={() => { setOpen(false); signOut({ callbackUrl: '/login' }) }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                width: '100%',
+                padding: '8px 10px',
+                borderRadius: '8px',
+                background: 'transparent',
+                border: 'none',
+                color: '#ef4444',
+                fontSize: '13px',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.1)'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+              }}
+            >
+              {IconLogout}
+              Se déconnecter
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Composant principal ── */
 
 export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavHeaderProps) {
   const { data: session } = useSession()
@@ -70,25 +276,17 @@ export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavH
   const isAdmin       = role === 'admin'
   const isSuperviseur = role === 'superviseur'
 
-  /* Liens visibles selon le rôle et la page courante */
   const links: { href: string; label: string; icon: React.ReactNode }[] = []
 
-  /* Aide — toujours visible */
   if (currentPage !== 'aide') {
     links.push({ href: '/aide', label: 'Aide', icon: IconHelp })
   }
-
-  /* Équipe — admin uniquement */
   if (isAdmin && currentPage !== 'equipe') {
     links.push({ href: '/equipe', label: 'Équipe', icon: IconTeam })
   }
-
-  /* Paramètres — admin uniquement */
   if (isAdmin && currentPage !== 'parametres') {
     links.push({ href: '/parametres', label: 'Paramètres', icon: IconSettings })
   }
-
-  /* Tableau de bord — admin + superviseur */
   if ((isAdmin || isSuperviseur) && currentPage !== 'tableau-de-bord') {
     links.push({ href: '/tableau-de-bord', label: 'Tableau de bord', icon: IconDashboard })
   }
@@ -99,7 +297,7 @@ export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavH
     <header className="border-b border-white/10 bg-[#0a1a0f]/80 backdrop-blur-2xl sticky top-0 z-10">
       <div className={`${maxWidth} mx-auto px-4 sm:px-6 py-3 flex items-center justify-between`}>
 
-        {/* Logo inline */}
+        {/* Logo */}
         <Link href="/">
           <div>
             <span style={{ fontWeight: 700, fontSize: '22px', color: '#ffffff' }}>Nex</span>
@@ -111,10 +309,8 @@ export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavH
         {/* Navigation */}
         <nav className="flex items-center gap-2">
 
-          {/* Boutons supplémentaires (ex: Actualiser) */}
           {actions}
 
-          {/* Liens rôle-conditionnels */}
           {links.map((link) => (
             <Link
               key={link.href}
@@ -126,7 +322,6 @@ export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavH
             </Link>
           ))}
 
-          {/* CTA Nouvelle fiche */}
           {showCTA && (
             <Link
               href="/nouvelle-fiche"
@@ -136,6 +331,9 @@ export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavH
               Nouvelle fiche
             </Link>
           )}
+
+          {/* Menu profil */}
+          <ProfileMenu />
         </nav>
       </div>
     </header>
