@@ -51,11 +51,10 @@ export async function POST(req: NextRequest) {
     const message = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Pas de réponse.'
     return NextResponse.json({ message }, { headers })
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : String(error)
-    const stack  = error instanceof Error ? error.stack   : undefined
-    console.error('[chatbot] Error message:', errMsg)
-    console.error('[chatbot] Error stack:',   stack)
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[chatbot] Gemini error details:', message)
     console.error('[chatbot] GEMINI_API_KEY set:', !!process.env.GEMINI_API_KEY)
+    console.error('[chatbot] GEMINI_API_KEY prefix:', process.env.GEMINI_API_KEY?.substring(0, 10))
     return NextResponse.json({ error: 'Erreur lors de la génération de la réponse' }, { status: 500 })
   }
 }
