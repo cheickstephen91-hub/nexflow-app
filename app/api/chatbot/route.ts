@@ -13,6 +13,10 @@ Règles :
 - Contact support : support.nexflow@gmail.com | WhatsApp : +225 07 77 842 576`
 
 export async function POST(req: NextRequest) {
+  const headers = {
+    'Content-Type': 'application/json',
+  }
+
   try {
     const { messages } = await req.json()
 
@@ -45,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     const message = data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Pas de réponse.'
-    return NextResponse.json({ message })
+    return NextResponse.json({ message }, { headers })
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error)
     const stack  = error instanceof Error ? error.stack   : undefined
