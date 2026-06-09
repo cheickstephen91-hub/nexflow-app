@@ -117,6 +117,10 @@ export const authOptions: NextAuthOptions = {
       session.role         = token.role         as string | undefined
       return session
     },
+
+    async redirect({ baseUrl }) {
+      return baseUrl + '/tableau-de-bord'
+    },
   },
 
   pages: {
