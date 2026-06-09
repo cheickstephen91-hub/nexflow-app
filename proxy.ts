@@ -51,6 +51,6 @@ export const config = {
      * - /api/auth/**        (callbacks NextAuth)
      * - fichiers statiques  (_next, favicon, images, SVG…)
      */
-    '/((?!login|activer-compte|api/auth|_next/static|_next/image|favicon\\.ico|.*\\.svg|.*\\.png|.*\\.jpg|.*\\.ico).*)',
+    '/((?!login|activer-compte|api/auth|api/chatbot|_next/static|_next/image|favicon\\.ico|.*\\.svg|.*\\.png|.*\\.jpg|.*\\.ico).*)',
   ],
 }
