@@ -66,7 +66,7 @@ export default function ChatbotWidget() {
     setIsLoading(true)
 
     try {
-      const res = await fetch('/api/chatbot', {
+      const res = await fetch(`${window.location.origin}/api/chatbot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages }),
