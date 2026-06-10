@@ -47,8 +47,7 @@ export default function Login() {
           : result.error
         )
       } else if (result?.ok) {
-        /* Refresh session to trigger useEffect redirect */
-        router.refresh()
+        window.location.href = '/'
       }
     } catch {
       setError('Une erreur inattendue s\'est produite.')
@@ -197,7 +196,7 @@ export default function Login() {
 
         {/* Google */}
         <button
-          onClick={() => signIn('google', { callbackUrl: '/' })}
+          onClick={() => signIn('google', { callbackUrl: '/', redirect: true })}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm py-3 rounded-xl transition-all duration-200 hover:scale-[1.01] shadow-md shadow-black/20 disabled:opacity-60"
         >
