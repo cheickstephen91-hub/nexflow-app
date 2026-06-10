@@ -118,7 +118,8 @@ export const authOptions: NextAuthOptions = {
       return session
     },
 
-    async redirect({ baseUrl }) {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url
       return baseUrl + '/tableau-de-bord'
     },
   },
