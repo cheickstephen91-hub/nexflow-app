@@ -18,16 +18,15 @@ export default withAuth(
       return NextResponse.redirect(url)
     }
 
-    /* ── Tableau de bord → admin + superviseur ── */
-    if (
-      pathname.startsWith('/tableau-de-bord') &&
-      role !== 'admin' &&
-      role !== 'superviseur'
-    ) {
-      const url = req.nextUrl.clone()
-      url.pathname = '/'
-      url.searchParams.set('access', 'denied')
-      return NextResponse.redirect(url)
+    /* ── Tableau de bord → admin + superviseur (tolérance rôle non encore chargé) ── */
+    if (pathname.startsWith('/tableau-de-bord')) {
+      const roleLoaded = role !== undefined && role !== null
+      if (roleLoaded && role !== 'admin' && role !== 'superviseur') {
+        const url = req.nextUrl.clone()
+        url.pathname = '/'
+        url.searchParams.set('access', 'denied')
+        return NextResponse.redirect(url)
+      }
     }
 
     return NextResponse.next()
