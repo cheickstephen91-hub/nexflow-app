@@ -120,7 +120,7 @@ export const authOptions: NextAuthOptions = {
 
     async redirect({ url, baseUrl }) {
       if (url.startsWith(baseUrl)) return url
-      return baseUrl + '/tableau-de-bord'
+      return baseUrl + '/'
     },
   },
 
