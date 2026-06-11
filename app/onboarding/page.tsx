@@ -11,7 +11,8 @@ import { NexflowLogo } from '@/components/nexflow-logo'
 const COMMUNES_GRAND_ABIDJAN = [
   'Cocody', 'Plateau', 'Marcory', 'Treichville', 'Adjamé', 'Attécoubé',
   'Yopougon', 'Abobo', 'Anyama', 'Bingerville', 'Songon', 'Jacqueville',
-  'Port-Bouët', 'Koumassi', 'Vridi', 'Grand-Bassam', 'Dabou', 'Autre',
+  'Port-Bouët', 'Koumassi', 'Vridi', 'Grand-Bassam', 'Dabou',
+  'Yamoussoukro', 'Bouaké', 'San-Pédro', 'Aboisso',
 ]
 
 const SERVICES_OPTIONS = [
