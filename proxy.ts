@@ -18,10 +18,14 @@ export default withAuth(
       return NextResponse.redirect(url)
     }
 
-    /* ── Tableau de bord → admin + superviseur (tolérance rôle non encore chargé) ── */
+    /* ── Tableau de bord → admin + superviseur ── */
     if (pathname.startsWith('/tableau-de-bord')) {
-      const roleLoaded = role !== undefined && role !== null
-      if (roleLoaded && role !== 'admin' && role !== 'superviseur') {
+      // Tolérance : rôle non chargé OU token fraîchement émis (< 30s)
+      const tokenAge = token?.iat ? Math.floor(Date.now() / 1000) - (token.iat as number) : 0
+      const tokenFresh = tokenAge < 30
+      const roleKnown = role !== undefined && role !== null
+
+      if (roleKnown && !tokenFresh && role !== 'admin' && role !== 'superviseur') {
         const url = req.nextUrl.clone()
         url.pathname = '/'
         url.searchParams.set('access', 'denied')

@@ -3,6 +3,7 @@ import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { supabase } from './supabase'
+import { supabaseAdmin } from './supabase-admin'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -98,15 +99,18 @@ export const authOptions: NextAuthOptions = {
         token.expires_at    = account.expires_at
       }
 
-      /* Relire le rôle depuis Supabase à chaque appel du callback */
+      /* Relire le rôle depuis Supabase via service_role (bypass RLS) */
       const email = token.email
+      console.log('[JWT] email:', email)
       if (email) {
-        const { data } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('users')
           .select('role')
           .eq('email', email)
           .maybeSingle()
+        console.log('[JWT] role depuis Supabase:', data?.role, '| error:', error?.message)
         token.role = data?.role ?? 'negociateur'
+        console.log('[JWT] role assigné:', token.role)
       }
 
       return token
