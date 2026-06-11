@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export default withAuth(
   function middleware(req) {
     const token    = req.nextauth.token
-    const role     = (token?.role as string | undefined) ?? 'negociateur'
+    const role     = token?.role as string | undefined
     const pathname = req.nextUrl.pathname
 
     /* ── Équipe & Paramètres → admin uniquement ── */
