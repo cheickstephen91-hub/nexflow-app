@@ -598,7 +598,17 @@ export default function NouvelleFiche() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field>
                 <Label>Localisation souhait&eacute;e</Label>
-                <Input name="localisation" value={form.localisation} onChange={handleInput} placeholder="Ex : Kip&eacute;, Ratoma" />
+                <Select
+                  name="localisation"
+                  value={form.localisation}
+                  onChange={handleInput}
+                  options={[
+                    'Cocody', 'Plateau', 'Marcory', 'Treichville', 'Adjamé',
+                    'Attécoubé', 'Yopougon', 'Abobo', 'Anyama', 'Bingerville',
+                    'Songon', 'Jacqueville', 'Port-Bouët', 'Koumassi', 'Vridi',
+                    'Grand-Bassam', 'Dabou', 'Autre',
+                  ]}
+                />
               </Field>
               <Field>
                 <Label>Niveau d&apos;urgence</Label>
