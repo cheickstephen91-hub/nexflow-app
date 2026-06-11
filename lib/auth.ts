@@ -92,6 +92,20 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
+    async signIn({ user, account }) {
+      if (!user.email) return false
+
+      if (account?.provider === 'google') {
+        await supabaseAdmin
+          .from('users')
+          .upsert(
+            { email: user.email, nom: user.name, role: 'negociateur' },
+            { onConflict: 'email', ignoreDuplicates: true }
+          )
+      }
+      return true
+    },
+
     async jwt({ token, account }) {
       if (account) {
         token.access_token  = account.access_token
@@ -109,7 +123,7 @@ export const authOptions: NextAuthOptions = {
           .eq('email', email)
           .maybeSingle()
         console.log('[JWT] role depuis Supabase:', data?.role, '| error:', error?.message)
-        token.role = data?.role ?? 'negociateur'
+        token.role = data?.role ?? null
         console.log('[JWT] role assigné:', token.role)
       }
 
