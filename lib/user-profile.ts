@@ -7,6 +7,7 @@ export type UserProfile = {
   created_at?: string
   email: string
   nom?: string
+  prenom?: string
   pays?: string
   type_compte?: string
   nom_entreprise?: string
@@ -15,6 +16,13 @@ export type UserProfile = {
   logo_url?: string
   telephone?: string
   email_contact?: string
+  site_web?: string
+  adresse?: string
+  rccm?: string
+  contribuable?: string
+  services?: string
+  zones?: string
+  nombre_biens?: string
   rapport_frequence?: string
   rapport_email?: string
   onboarding_complete?: boolean
@@ -50,7 +58,7 @@ export async function upsertUserProfile(profile: UserProfile): Promise<{ error: 
       .select('*', { count: 'exact', head: true })
       .eq('onboarding_complete', true)
 
-    finalRole = (count === 0) ? 'admin' : 'negociateur'
+    finalRole = (count === 0) ? 'directeur' : 'collaborateur'
   }
 
   const toUpsert = { ...profile, ...(finalRole ? { role: finalRole } : {}) }

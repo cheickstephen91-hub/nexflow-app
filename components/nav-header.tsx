@@ -271,10 +271,10 @@ function ProfileMenu() {
 
 export function NavHeader({ currentPage, maxWidth = 'max-w-3xl', actions }: NavHeaderProps) {
   const { data: session } = useSession()
-  const role = (session as { role?: string } | null)?.role ?? 'negociateur'
+  const role = (session as { role?: string } | null)?.role ?? 'collaborateur'
 
-  const isAdmin       = role === 'admin'
-  const isSuperviseur = role === 'superviseur'
+  const isAdmin       = role === 'directeur'
+  const isSuperviseur = role === 'manager'
 
   const links: { href: string; label: string; icon: React.ReactNode }[] = []
 

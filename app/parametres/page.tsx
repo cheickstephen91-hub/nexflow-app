@@ -191,11 +191,19 @@ export default function Parametres() {
     const toSave: UserProfile = {
       ...(profile as UserProfile),
       email,
+      prenom:         profile.prenom         ?? '',
       nom_entreprise: profile.nom_entreprise ?? '',
       secteur:        profile.secteur        ?? '',
       pays:           profile.pays           ?? '',
+      adresse:        profile.adresse        ?? '',
       telephone:      profile.telephone      ?? '',
       email_contact:  profile.email_contact  ?? '',
+      site_web:       profile.site_web       ?? '',
+      rccm:           profile.rccm           ?? '',
+      contribuable:   profile.contribuable   ?? '',
+      services:       profile.services       ?? '',
+      zones:          profile.zones          ?? '',
+      nombre_biens:   profile.nombre_biens   ?? '',
     }
     const { error } = await upsertUserProfile(toSave)
     if (error) showError(`Erreur lors de la sauvegarde : ${error}`)
@@ -317,22 +325,70 @@ export default function Parametres() {
         <SectionCard id="infos" title="Informations de l'entreprise" icon={
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
         }>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-            <div>
-              <FieldLabel>Secteur</FieldLabel>
-              <TextInput value={profile.secteur ?? ''} onChange={(v) => setProfile((p) => ({ ...p, secteur: v }))} placeholder="Ex : Immobilier" />
+          <div className="space-y-4 mb-5">
+            {/* Profil Directeur */}
+            <p className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase">Profil Directeur</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Prénom</FieldLabel>
+                <TextInput value={profile.prenom ?? ''} onChange={(v) => setProfile((p) => ({ ...p, prenom: v }))} placeholder="Ex : Kouadio" />
+              </div>
+              <div>
+                <FieldLabel>Nom</FieldLabel>
+                <TextInput value={profile.nom ?? ''} onChange={(v) => setProfile((p) => ({ ...p, nom: v }))} placeholder="Ex : Koffi" />
+              </div>
             </div>
-            <div>
-              <FieldLabel>Pays</FieldLabel>
-              <TextInput value={profile.pays ?? ''} onChange={(v) => setProfile((p) => ({ ...p, pays: v }))} placeholder="Ex : Guinée" />
+
+            {/* Agence */}
+            <p className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase pt-2">Agence</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <FieldLabel>Adresse</FieldLabel>
+                <TextInput value={profile.adresse ?? ''} onChange={(v) => setProfile((p) => ({ ...p, adresse: v }))} placeholder="Ex : Cocody Riviera 2, Abidjan" />
+              </div>
+              <div>
+                <FieldLabel>Téléphone</FieldLabel>
+                <TextInput value={profile.telephone ?? ''} onChange={(v) => setProfile((p) => ({ ...p, telephone: v }))} placeholder="+225 07 00 00 00 00" />
+              </div>
+              <div>
+                <FieldLabel>Email de contact</FieldLabel>
+                <TextInput value={profile.email_contact ?? ''} onChange={(v) => setProfile((p) => ({ ...p, email_contact: v }))} placeholder="contact@agence.ci" />
+              </div>
+              <div>
+                <FieldLabel>Site web</FieldLabel>
+                <TextInput value={profile.site_web ?? ''} onChange={(v) => setProfile((p) => ({ ...p, site_web: v }))} placeholder="https://www.agence.ci" />
+              </div>
+              <div>
+                <FieldLabel>Pays</FieldLabel>
+                <TextInput value={profile.pays ?? ''} onChange={(v) => setProfile((p) => ({ ...p, pays: v }))} placeholder="Ex : Côte d'Ivoire" />
+              </div>
+              <div>
+                <FieldLabel>RCCM</FieldLabel>
+                <TextInput value={profile.rccm ?? ''} onChange={(v) => setProfile((p) => ({ ...p, rccm: v }))} placeholder="CI-ABJ-2024-B-0000" />
+              </div>
+              <div>
+                <FieldLabel>N° Contribuable</FieldLabel>
+                <TextInput value={profile.contribuable ?? ''} onChange={(v) => setProfile((p) => ({ ...p, contribuable: v }))} placeholder="000000000" />
+              </div>
             </div>
-            <div>
-              <FieldLabel>T&eacute;l&eacute;phone</FieldLabel>
-              <TextInput value={profile.telephone ?? ''} onChange={(v) => setProfile((p) => ({ ...p, telephone: v }))} placeholder="+224 6XX XXX XXX" />
-            </div>
-            <div>
-              <FieldLabel>Email de contact</FieldLabel>
-              <TextInput value={profile.email_contact ?? ''} onChange={(v) => setProfile((p) => ({ ...p, email_contact: v }))} placeholder="contact@entreprise.com" />
+
+            {/* Services & Zones */}
+            <p className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase pt-2">Services & Zones</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Services proposés</FieldLabel>
+                <TextInput value={profile.services ?? ''} onChange={(v) => setProfile((p) => ({ ...p, services: v }))} placeholder="location,vente,gestion" />
+                <p className="text-white/25 text-[10px] mt-1">Séparés par des virgules</p>
+              </div>
+              <div>
+                <FieldLabel>Zones d&apos;intervention</FieldLabel>
+                <TextInput value={profile.zones ?? ''} onChange={(v) => setProfile((p) => ({ ...p, zones: v }))} placeholder="Cocody,Plateau,Marcory" />
+                <p className="text-white/25 text-[10px] mt-1">Séparées par des virgules</p>
+              </div>
+              <div>
+                <FieldLabel>Biens en portefeuille</FieldLabel>
+                <TextInput value={profile.nombre_biens ?? ''} onChange={(v) => setProfile((p) => ({ ...p, nombre_biens: v }))} placeholder="Ex : 20 – 50" />
+              </div>
             </div>
           </div>
           <SaveButton onClick={handleSaveInfos} loading={savingInfos} />

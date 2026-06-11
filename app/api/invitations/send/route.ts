@@ -4,9 +4,9 @@ import { authOptions } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 
 const ROLE_LABELS: Record<string, string> = {
-  superviseur: 'Superviseur',
-  negociateur: 'Négociateur',
-  admin:       'Administrateur',
+  manager:      'Manager',
+  collaborateur: 'Collaborateur',
+  directeur:    'Directeur',
 }
 
 export async function POST(req: NextRequest) {
@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }
-  if ((session as { role?: string }).role !== 'admin') {
-    return NextResponse.json({ error: 'Accès refusé — administrateur requis' }, { status: 403 })
+  if ((session as { role?: string }).role !== 'directeur') {
+    return NextResponse.json({ error: 'Accès refusé — directeur requis' }, { status: 403 })
   }
 
   /* ── Payload ── */

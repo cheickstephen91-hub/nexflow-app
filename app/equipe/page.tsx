@@ -20,20 +20,20 @@ type Member = {
 /* ── Helpers ── */
 
 const ROLE_LABELS: Record<string, string> = {
-  admin:       'Admin',
-  superviseur: 'Superviseur',
-  negociateur: 'Négociateur',
+  directeur:    'Directeur',
+  manager:      'Manager',
+  collaborateur: 'Collaborateur',
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  admin:       'bg-purple-900/40 text-purple-300 border-purple-700/40',
-  superviseur: 'bg-blue-900/40 text-blue-300 border-blue-700/40',
-  negociateur: 'bg-[#166534]/40 text-[#86efac] border-[#22c55e]/30',
+  directeur:    'bg-purple-900/40 text-purple-300 border-purple-700/40',
+  manager:      'bg-blue-900/40 text-blue-300 border-blue-700/40',
+  collaborateur: 'bg-[#166534]/40 text-[#86efac] border-[#22c55e]/30',
 }
 
 function RoleBadge({ role }: { role?: string }) {
-  const r   = role ?? 'negociateur'
-  const cls = ROLE_COLORS[r] ?? ROLE_COLORS['negociateur']
+  const r   = role ?? 'collaborateur'
+  const cls = ROLE_COLORS[r] ?? ROLE_COLORS['collaborateur']
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cls}`}>
       {ROLE_LABELS[r] ?? r}
@@ -85,7 +85,7 @@ export default function Equipe() {
   const [showForm,    setShowForm]    = useState(false)
   const [invNom,      setInvNom]      = useState('')
   const [invEmail,    setInvEmail]    = useState('')
-  const [invRole,     setInvRole]     = useState<'negociateur' | 'superviseur'>('negociateur')
+  const [invRole,     setInvRole]     = useState<'collaborateur' | 'manager'>('collaborateur')
   const [sending,     setSending]     = useState(false)
 
   /* Confirmation suppression */
@@ -98,7 +98,7 @@ export default function Equipe() {
   /* Redirect si pas admin */
   useEffect(() => {
     if (status === 'loading') return
-    if (role && role !== 'admin') router.replace('/')
+    if (role && role !== 'directeur') router.replace('/')
   }, [status, role, router])
 
   /* Charger membres et invitations */
@@ -144,7 +144,7 @@ export default function Equipe() {
       const invs = await getInvitations()
       setInvitations(invs.filter((i) => !i.accepted))
       /* Réinitialiser formulaire */
-      setInvNom(''); setInvEmail(''); setInvRole('negociateur')
+      setInvNom(''); setInvEmail(''); setInvRole('collaborateur')
       setShowForm(false)
     }
   }
@@ -266,7 +266,7 @@ export default function Equipe() {
               <div>
                 <label className="block text-xs font-semibold tracking-widest text-[#86efac] uppercase mb-2">Rôle</label>
                 <div className="flex gap-3">
-                  {(['negociateur', 'superviseur'] as const).map((r) => (
+                  {(['collaborateur', 'manager'] as const).map((r) => (
                     <button
                       key={r}
                       type="button"
@@ -277,9 +277,9 @@ export default function Equipe() {
                           : 'border-white/10 bg-white/[0.03] text-white/50 hover:border-[#22c55e]/40 hover:bg-white/5'
                         }`}
                     >
-                      {r === 'negociateur' ? 'Négociateur' : 'Superviseur'}
+                      {r === 'collaborateur' ? 'Collaborateur' : 'Manager'}
                       <p className="text-xs font-normal opacity-70 mt-0.5">
-                        {r === 'negociateur' ? 'Crée des fiches' : 'Tableaux + fiches'}
+                        {r === 'collaborateur' ? 'Crée des fiches' : 'Tableaux + fiches'}
                       </p>
                     </button>
                   ))}

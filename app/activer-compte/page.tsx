@@ -164,7 +164,7 @@ function ActivateContent() {
 
   /* ── Formulaire d'activation ── */
   const ROLE_LABELS: Record<string, string> = {
-    negociateur: 'Négociateur', superviseur: 'Superviseur', admin: 'Administrateur',
+    collaborateur: 'Collaborateur', manager: 'Manager', directeur: 'Directeur',
   }
 
   return (

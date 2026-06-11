@@ -10,9 +10,9 @@ export default withAuth(
     // Si pas de token → withAuth redirige vers /login (géré par authorized ci-dessous)
     if (!token) return NextResponse.next()
 
-    /* ── Équipe & Paramètres → admin uniquement ── */
+    /* ── Équipe & Paramètres → directeur uniquement ── */
     if (pathname.startsWith('/equipe') || pathname.startsWith('/parametres')) {
-      if (role && role !== 'admin') {
+      if (role && role !== 'directeur') {
         const url = req.nextUrl.clone()
         url.pathname = '/'
         url.searchParams.set('access', 'denied')
@@ -20,10 +20,10 @@ export default withAuth(
       }
     }
 
-    /* ── Tableau de bord → admin + superviseur ── */
+    /* ── Tableau de bord → directeur + manager ── */
     if (pathname.startsWith('/tableau-de-bord')) {
       // Laisse passer si rôle null/undefined (pas encore chargé depuis Supabase)
-      if (role && role !== 'admin' && role !== 'superviseur') {
+      if (role && role !== 'directeur' && role !== 'manager') {
         const url = req.nextUrl.clone()
         url.pathname = '/'
         url.searchParams.set('access', 'denied')

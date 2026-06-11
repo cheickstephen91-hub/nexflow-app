@@ -99,7 +99,7 @@ export const authOptions: NextAuthOptions = {
         await supabaseAdmin
           .from('users')
           .upsert(
-            { email: user.email, nom: user.name, role: 'negociateur' },
+            { email: user.email, nom: user.name, role: 'collaborateur' },
             { onConflict: 'email', ignoreDuplicates: true }
           )
       }
