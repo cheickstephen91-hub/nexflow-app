@@ -112,6 +112,7 @@ export default function Onboarding() {
   /* Étape 3 — Profil admin */
   const [prenom,       setPrenom]       = useState('')
   const [nom,          setNom]          = useState('')
+  const [adminRole,    setAdminRole]    = useState<'directeur' | 'manager'>('directeur')
   const [photoFile,    setPhotoFile]    = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -172,6 +173,7 @@ export default function Onboarding() {
       zones:           zones.join(','),
       nombre_biens:    nombreBiens,
       secteur:         'immobilier',
+      role:            adminRole,
       ...(logo_url ? { logo_url } : {}),
       onboarding_complete: true,
     })
@@ -421,6 +423,51 @@ export default function Onboarding() {
                   <div>
                     <FieldLabel>Nom</FieldLabel>
                     <TextInput value={nom} onChange={setNom} placeholder="Ex : Koffi" />
+                  </div>
+                </div>
+
+                {/* Rôle admin */}
+                <div>
+                  <FieldLabel>Votre rôle</FieldLabel>
+                  <div className="grid grid-cols-2 gap-3">
+                    {([
+                      {
+                        id:    'directeur' as const,
+                        icon:  '👑',
+                        label: 'Directeur',
+                        desc:  'Accès total — vous gérez l\'équipe et les paramètres',
+                      },
+                      {
+                        id:    'manager' as const,
+                        icon:  '👥',
+                        label: 'Manager',
+                        desc:  'Vous supervisez l\'équipe sans gérer les paramètres sensibles',
+                      },
+                    ]).map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => setAdminRole(r.id)}
+                        className={`flex flex-col items-start gap-2 p-4 rounded-xl border-2 text-left transition-all duration-150
+                          ${adminRole === r.id
+                            ? 'border-[#22c55e] bg-[#22c55e]/10'
+                            : 'border-white/10 bg-white/[0.03] hover:border-[#22c55e]/40 hover:bg-white/5'
+                          }`}
+                      >
+                        <span className="text-2xl leading-none">{r.icon}</span>
+                        <span className={`text-sm font-bold ${adminRole === r.id ? 'text-[#22c55e]' : 'text-white/80'}`}>
+                          {r.label}
+                        </span>
+                        <span className="text-[11px] leading-snug text-white/40">{r.desc}</span>
+                        {adminRole === r.id && (
+                          <span className="mt-1 self-end">
+                            <svg className="w-4 h-4 text-[#22c55e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          </span>
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
