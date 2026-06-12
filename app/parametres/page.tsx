@@ -11,6 +11,22 @@ import {
 } from '@/lib/user-profile'
 // NavHeader replaced by Sidebar via AppShell
 
+/* ── Données services / zones ── */
+
+const SERVICES_OPTIONS = [
+  { id: 'location',  label: 'Location',        icon: '🔑' },
+  { id: 'vente',     label: 'Vente',            icon: '🏷️' },
+  { id: 'gestion',   label: 'Gestion locative', icon: '📋' },
+  { id: 'promotion', label: 'Promotion immo.',  icon: '🏗️' },
+]
+
+const COMMUNES_GRAND_ABIDJAN = [
+  'Cocody', 'Plateau', 'Marcory', 'Treichville', 'Adjamé', 'Attécoubé',
+  'Yopougon', 'Abobo', 'Anyama', 'Bingerville', 'Songon', 'Jacqueville',
+  'Port-Bouët', 'Koumassi', 'Vridi', 'Grand-Bassam', 'Dabou',
+  'Yamoussoukro', 'Bouaké', 'San-Pédro', 'Aboisso',
+]
+
 /* ── helpers UI ── */
 
 function SectionCard({ id, title, icon, children }: {
@@ -126,6 +142,9 @@ export default function Parametres() {
   const [profile, setProfile] = useState<Partial<UserProfile>>({})
   const [loadingProfile, setLoadingProfile] = useState(true)
 
+  const [selectedServices, setSelectedServices] = useState<string[]>([])
+  const [selectedZones, setSelectedZones]       = useState<string[]>([])
+
   const [savingIdentite, setSavingIdentite] = useState(false)
   const [savingInfos, setSavingInfos] = useState(false)
   const [savingRapport, setSavingRapport] = useState(false)
@@ -145,12 +164,32 @@ export default function Parametres() {
   useEffect(() => {
     if (!email) return
     Promise.all([getUserProfile(email), getAgents(email)]).then(([p, a]) => {
-      if (p) setProfile(p)
+      if (p) {
+        setProfile(p)
+        if (p.services) setSelectedServices(p.services.split(',').map((s) => s.trim()).filter(Boolean))
+        if (p.zones)    setSelectedZones(p.zones.split(',').map((z) => z.trim()).filter(Boolean))
+      }
       if (p?.logo_url) setLogoPreview(p.logo_url)
       setAgents(a)
       setLoadingProfile(false)
     })
   }, [email])
+
+  function toggleService(id: string) {
+    setSelectedServices((prev) => {
+      const next = prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+      setProfile((p) => ({ ...p, services: next.join(',') }))
+      return next
+    })
+  }
+
+  function toggleZone(z: string) {
+    setSelectedZones((prev) => {
+      const next = prev.includes(z) ? prev.filter((x) => x !== z) : [...prev, z]
+      setProfile((p) => ({ ...p, zones: next.join(',') }))
+      return next
+    })
+  }
 
   function showSuccess(msg: string) {
     setErrorMsg(null)
@@ -376,17 +415,66 @@ export default function Parametres() {
             </div>
 
             <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--text-muted)' }}>Services &amp; Zones</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <FieldLabel>Services proposés</FieldLabel>
-                <TextInput value={profile.services ?? ''} onChange={(v) => setProfile((p) => ({ ...p, services: v }))} placeholder="location,vente,gestion" />
-                <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Séparés par des virgules</p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {SERVICES_OPTIONS.map((s) => {
+                    const active = selectedServices.includes(s.id)
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => toggleService(s.id)}
+                        className="flex items-center gap-2.5 py-3 px-4 rounded-xl text-left transition-all duration-150"
+                        style={{
+                          border: active ? '2px solid #2563eb' : '1px solid var(--border)',
+                          background: active ? '#eff6ff' : 'var(--bg-primary)',
+                          color: active ? '#2563eb' : 'var(--text-secondary)',
+                        }}
+                      >
+                        <span className="text-lg shrink-0">{s.icon}</span>
+                        <span className="text-xs font-semibold leading-tight">{s.label}</span>
+                        {active && (
+                          <svg className="w-4 h-4 ml-auto shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 6L9 17l-5-5"/>
+                          </svg>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
+
               <div>
                 <FieldLabel>Zones d&apos;intervention</FieldLabel>
-                <TextInput value={profile.zones ?? ''} onChange={(v) => setProfile((p) => ({ ...p, zones: v }))} placeholder="Cocody,Plateau,Marcory" />
-                <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Séparées par des virgules</p>
+                <div className="flex flex-wrap gap-2">
+                  {COMMUNES_GRAND_ABIDJAN.map((z) => {
+                    const active = selectedZones.includes(z)
+                    return (
+                      <button
+                        key={z}
+                        type="button"
+                        onClick={() => toggleZone(z)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                        style={{
+                          border: active ? '1px solid #2563eb' : '1px solid var(--border)',
+                          background: active ? '#eff6ff' : 'transparent',
+                          color: active ? '#2563eb' : 'var(--text-secondary)',
+                        }}
+                      >
+                        {z}
+                      </button>
+                    )
+                  })}
+                </div>
+                {selectedZones.length > 0 && (
+                  <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                    {selectedZones.length} commune{selectedZones.length > 1 ? 's' : ''} sélectionnée{selectedZones.length > 1 ? 's' : ''}
+                  </p>
+                )}
               </div>
+
               <div>
                 <FieldLabel>Biens en portefeuille</FieldLabel>
                 <TextInput value={profile.nombre_biens ?? ''} onChange={(v) => setProfile((p) => ({ ...p, nombre_biens: v }))} placeholder="Ex : 20 – 50" />
