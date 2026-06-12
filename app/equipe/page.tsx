@@ -25,17 +25,17 @@ const ROLE_LABELS: Record<string, string> = {
   collaborateur: 'Collaborateur',
 }
 
-const ROLE_COLORS: Record<string, string> = {
-  directeur:    'bg-purple-900/40 text-purple-300 border-purple-700/40',
-  manager:      'bg-blue-900/40 text-blue-300 border-blue-700/40',
-  collaborateur: 'bg-[#166534]/40 text-[#86efac] border-[#22c55e]/30',
+const ROLE_STYLES: Record<string, React.CSSProperties> = {
+  directeur:    { background: '#dbeafe', color: '#1d4ed8' },
+  manager:      { background: '#ede9fe', color: '#7c3aed' },
+  collaborateur: { background: '#dcfce7', color: '#16a34a' },
 }
 
 function RoleBadge({ role }: { role?: string }) {
-  const r   = role ?? 'collaborateur'
-  const cls = ROLE_COLORS[r] ?? ROLE_COLORS['collaborateur']
+  const r = role ?? 'collaborateur'
+  const s = ROLE_STYLES[r] ?? ROLE_STYLES['collaborateur']
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cls}`}>
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style={s}>
       {ROLE_LABELS[r] ?? r}
     </span>
   )
@@ -43,12 +43,12 @@ function RoleBadge({ role }: { role?: string }) {
 
 function SuccessBanner({ msg, onClose }: { msg: string; onClose: () => void }) {
   return (
-    <div className="flex items-center justify-between gap-4 bg-[#166534]/30 border border-[#22c55e]/30 rounded-xl px-4 py-3 text-[#86efac] text-sm">
+    <div className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 text-sm" style={{ background: 'rgba(22,101,52,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: 'var(--success)' }}>
       <div className="flex items-center gap-2">
-        <svg className="w-4 h-4 text-[#22c55e] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
         {msg}
       </div>
-      <button onClick={onClose} className="text-[#86efac]/50 hover:text-[#86efac]">
+      <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity">
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -57,12 +57,12 @@ function SuccessBanner({ msg, onClose }: { msg: string; onClose: () => void }) {
 
 function ErrorBanner({ msg, onClose }: { msg: string; onClose: () => void }) {
   return (
-    <div className="flex items-center justify-between gap-4 bg-red-900/20 border border-red-700/40 rounded-xl px-4 py-3 text-red-300 text-sm">
+    <div className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 text-sm" style={{ background: 'rgba(153,27,27,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: 'var(--destructive)' }}>
       <div className="flex items-center gap-2">
         <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         {msg}
       </div>
-      <button onClick={onClose} className="text-red-300/50 hover:text-red-300">
+      <button onClick={onClose} className="opacity-50 hover:opacity-100 transition-opacity">
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -89,19 +89,17 @@ export default function Equipe() {
   const [sending,     setSending]     = useState(false)
 
   /* Confirmation suppression */
-  const [confirmMember,     setConfirmMember]     = useState<string | null>(null) // email
-  const [confirmInvitation, setConfirmInvitation] = useState<string | null>(null) // id
+  const [confirmMember,     setConfirmMember]     = useState<string | null>(null)
+  const [confirmInvitation, setConfirmInvitation] = useState<string | null>(null)
   const [deleting,          setDeleting]          = useState(false)
 
   const role = (session as { role?: string } | null)?.role
 
-  /* Redirect si pas admin */
   useEffect(() => {
     if (status === 'loading') return
     if (role && role !== 'directeur') router.replace('/')
   }, [status, role, router])
 
-  /* Charger membres et invitations */
   useEffect(() => {
     if (status !== 'authenticated') return
     async function load() {
@@ -140,10 +138,8 @@ export default function Equipe() {
       } else {
         setSuccessMsg(`Invitation envoyée à ${invEmail}.`)
       }
-      /* Rafraîchir la liste des invitations */
       const invs = await getInvitations()
       setInvitations(invs.filter((i) => !i.accepted))
-      /* Réinitialiser formulaire */
       setInvNom(''); setInvEmail(''); setInvRole('collaborateur')
       setShowForm(false)
     }
@@ -187,8 +183,8 @@ export default function Equipe() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-[#0a1a0f] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-[#22c55e] border-t-transparent animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
       </div>
     )
   }
@@ -199,12 +195,12 @@ export default function Equipe() {
   })
 
   return (
-    <div className="min-h-screen bg-[#0a1a0f] relative">
+    <div className="min-h-screen relative" style={{ background: 'var(--bg-primary)' }}>
 
       {/* Background decorators */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[#22c55e]/[0.06] rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -right-40 w-[400px] h-[400px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.06)' }} />
+        <div className="absolute top-1/2 -right-40 w-[400px] h-[400px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.04)' }} />
       </div>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
@@ -212,15 +208,18 @@ export default function Equipe() {
         {/* Titre */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[#f0fdf4] text-xl font-bold">Gestion de l&apos;équipe</h1>
-            <p className="text-[#4ade80]/50 text-xs mt-0.5">
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Gestion de l&apos;équipe</h1>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               {members.length} membre{members.length > 1 ? 's' : ''}
               {pendingInvitations.length > 0 && ` · ${pendingInvitations.length} invitation${pendingInvitations.length > 1 ? 's' : ''} en attente`}
             </p>
           </div>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] text-[#0a1a0f] font-semibold text-sm py-2.5 px-5 rounded-xl transition-all hover:scale-[1.02]"
+            className="flex items-center gap-2 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all hover:scale-[1.02]"
+            style={{ background: 'var(--accent)', color: '#ffffff' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent-hover)' }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent)' }}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 5v14M5 12h14"/>
@@ -234,46 +233,48 @@ export default function Equipe() {
 
         {/* Formulaire invitation */}
         {showForm && (
-          <div className="bg-white/5 backdrop-blur-xl border border-[#22c55e]/20 rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-            <h2 className="text-[#f0fdf4] font-semibold text-base mb-5">Nouvelle invitation</h2>
+          <div className="rounded-2xl p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
+            <h2 className="font-semibold text-base mb-5" style={{ color: 'var(--text-primary)' }}>Nouvelle invitation</h2>
             <form onSubmit={handleSendInvitation} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold tracking-widest text-[#86efac] uppercase mb-1.5">Nom complet</label>
+                  <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5" style={{ color: 'var(--text-secondary)' }}>Nom complet</label>
                   <input
                     value={invNom}
                     onChange={(e) => setInvNom(e.target.value)}
                     placeholder="Marie Dupont"
                     required
-                    className="w-full bg-white/5 border border-white/[0.15] text-white placeholder-white/25 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                    className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+                    style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold tracking-widest text-[#86efac] uppercase mb-1.5">Adresse email</label>
+                  <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5" style={{ color: 'var(--text-secondary)' }}>Adresse email</label>
                   <input
                     type="email"
                     value={invEmail}
                     onChange={(e) => setInvEmail(e.target.value)}
                     placeholder="marie.dupont@agence.com"
                     required
-                    className="w-full bg-white/5 border border-white/[0.15] text-white placeholder-white/25 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                    className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+                    style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold tracking-widest text-[#86efac] uppercase mb-2">Rôle</label>
+                <label className="block text-xs font-semibold tracking-widests uppercase mb-2" style={{ color: 'var(--text-secondary)' }}>Rôle</label>
                 <div className="flex gap-3">
                   {(['collaborateur', 'manager'] as const).map((r) => (
                     <button
                       key={r}
                       type="button"
                       onClick={() => setInvRole(r)}
-                      className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-150 capitalize
-                        ${invRole === r
-                          ? 'border-[#22c55e] bg-[#22c55e]/10 text-[#22c55e]'
-                          : 'border-white/10 bg-white/[0.03] text-white/50 hover:border-[#22c55e]/40 hover:bg-white/5'
-                        }`}
+                      className="flex-1 py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-150 capitalize"
+                      style={invRole === r
+                        ? { borderColor: 'var(--accent)', background: 'var(--accent-light)', color: 'var(--accent)' }
+                        : { borderColor: 'var(--border)', background: 'var(--bg-card)', color: 'var(--text-muted)' }
+                      }
                     >
                       {r === 'collaborateur' ? 'Collaborateur' : 'Manager'}
                       <p className="text-xs font-normal opacity-70 mt-0.5">
@@ -288,7 +289,8 @@ export default function Equipe() {
                 <button
                   type="submit"
                   disabled={sending || !invNom.trim() || !invEmail.trim()}
-                  className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] disabled:bg-[#166534] disabled:cursor-not-allowed text-[#0a1a0f] disabled:text-[#0a1a0f]/40 font-semibold text-sm py-3 px-6 rounded-xl transition-all"
+                  className="flex items-center gap-2 font-semibold text-sm py-3 px-6 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--accent)', color: '#ffffff' }}
                 >
                   {sending ? (
                     <>
@@ -305,7 +307,8 @@ export default function Equipe() {
                 <button
                   type="button"
                   onClick={() => { setShowForm(false); setInvNom(''); setInvEmail('') }}
-                  className="px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm hover:bg-white/10 hover:border-white/20 hover:text-white transition-all"
+                  className="px-5 py-3 rounded-xl text-sm transition-all"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
                 >
                   Annuler
                 </button>
@@ -315,9 +318,9 @@ export default function Equipe() {
         )}
 
         {/* Tableau des membres */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-white/10">
-            <div className="w-8 h-8 rounded-lg bg-[#166534]/40 flex items-center justify-center text-[#22c55e]">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
+          <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
@@ -325,44 +328,50 @@ export default function Equipe() {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
-            <h2 className="text-[#f0fdf4] font-semibold text-base">Membres actifs</h2>
+            <h2 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>Membres actifs</h2>
           </div>
 
           {members.length === 0 ? (
-            <p className="text-[#86efac]/40 text-sm text-center py-12">Aucun membre trouvé.</p>
+            <p className="text-sm text-center py-12" style={{ color: 'var(--text-muted)' }}>Aucun membre trouvé.</p>
           ) : (
-            <div className="divide-y divide-white/[0.07]">
-              {members.map((m) => (
-                <div key={m.email} className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.04] transition-colors">
+            <div>
+              {members.map((m, idx) => (
+                <div
+                  key={m.email}
+                  className="flex items-center justify-between px-6 py-4 transition-colors"
+                  style={{ borderBottom: idx < members.length - 1 ? '1px solid var(--border)' : undefined }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-card-hover)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = '' }}
+                >
                   <div className="flex items-center gap-4">
-                    {/* Avatar initiales */}
-                    <div className="w-9 h-9 rounded-full bg-[#166534]/50 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e] text-sm font-bold shrink-0">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                       {(m.nom ?? m.email).charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-[#f0fdf4] text-sm font-semibold">{m.nom ?? '—'}</p>
-                      <p className="text-[#86efac]/50 text-xs">{m.email}</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{m.nom ?? '—'}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{m.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <RoleBadge role={m.role} />
                     {m.email === session?.user?.email ? (
-                      <span className="text-xs text-[#86efac]/40 italic">vous</span>
+                      <span className="text-xs italic" style={{ color: 'var(--text-muted)' }}>vous</span>
                     ) : confirmMember === m.email ? (
-                      /* Confirmation inline */
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-red-300">Confirmer ?</span>
+                        <span className="text-xs" style={{ color: 'var(--destructive)' }}>Confirmer ?</span>
                         <button
                           onClick={() => handleDeleteMember(m.email)}
                           disabled={deleting}
-                          className="text-xs bg-red-900/40 hover:bg-red-900/70 text-red-300 border border-red-700/50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-50"
+                          className="text-xs px-2.5 py-1 rounded-lg transition-all disabled:opacity-50"
+                          style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.4)', color: 'var(--destructive)' }}
                         >
                           {deleting ? '…' : 'Oui'}
                         </button>
                         <button
                           onClick={() => setConfirmMember(null)}
                           disabled={deleting}
-                          className="text-xs text-white/40 hover:text-white border border-white/10 px-2.5 py-1 rounded-lg transition-all"
+                          className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                          style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
                         >
                           Non
                         </button>
@@ -370,7 +379,10 @@ export default function Equipe() {
                     ) : (
                       <button
                         onClick={() => setConfirmMember(m.email)}
-                        className="text-xs text-red-400/60 hover:text-red-400 border border-red-800/30 hover:border-red-600/50 px-2.5 py-1 rounded-lg transition-all"
+                        className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                        style={{ border: '1px solid rgba(239,68,68,0.3)', color: 'rgba(239,68,68,0.6)' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--destructive)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.6)' }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(239,68,68,0.6)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.3)' }}
                       >
                         Supprimer
                       </button>
@@ -384,62 +396,67 @@ export default function Equipe() {
 
         {/* Invitations en attente */}
         {pendingInvitations.length > 0 && (
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-white/10">
-              <div className="w-8 h-8 rounded-lg bg-[#166534]/40 flex items-center justify-center text-[#22c55e]">
+          <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
+            <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13"/>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                 </svg>
               </div>
-              <h2 className="text-[#f0fdf4] font-semibold text-base">
-                Invitations en attente
-                <span className="ml-2 bg-[#166534]/50 text-[#86efac] text-xs px-2 py-0.5 rounded-full border border-[#22c55e]/20">
+              <h2 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
+                Invitations en attente{' '}
+                <span className="ml-1 text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                   {pendingInvitations.length}
                 </span>
               </h2>
             </div>
-            <div className="divide-y divide-white/[0.07]">
-              {pendingInvitations.map((inv) => {
+            <div>
+              {pendingInvitations.map((inv, idx) => {
                 const expiresAt = inv.expires_at ? new Date(inv.expires_at) : null
                 const isExpired = expiresAt ? expiresAt < new Date() : false
                 return (
-                  <div key={inv.id} className="flex items-center justify-between px-6 py-4">
+                  <div
+                    key={inv.id}
+                    className="flex items-center justify-between px-6 py-4"
+                    style={{ borderBottom: idx < pendingInvitations.length - 1 ? '1px solid var(--border)' : undefined }}
+                  >
                     <div className="flex items-center gap-4">
-                      <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white/30 text-sm font-bold shrink-0">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                         {inv.nom.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-[#f0fdf4] text-sm font-semibold">{inv.nom}</p>
-                        <p className="text-[#86efac]/50 text-xs">{inv.email}</p>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{inv.nom}</p>
+                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{inv.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <RoleBadge role={inv.role} />
                       {isExpired ? (
-                        <span className="text-xs text-red-400/70 bg-red-900/20 border border-red-700/30 px-2 py-0.5 rounded-full">
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: 'var(--destructive)' }}>
                           Expirée
                         </span>
                       ) : (
-                        <span className="text-xs text-[#86efac]/40">
+                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                           Expire le {expiresAt?.toLocaleDateString('fr-FR') ?? '—'}
                         </span>
                       )}
                       {confirmInvitation === inv.id ? (
-                        /* Confirmation inline */
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-red-300">Confirmer ?</span>
+                          <span className="text-xs" style={{ color: 'var(--destructive)' }}>Confirmer ?</span>
                           <button
                             onClick={() => handleDeleteInvitation(inv.id!)}
                             disabled={deleting}
-                            className="text-xs bg-red-900/40 hover:bg-red-900/70 text-red-300 border border-red-700/50 px-2.5 py-1 rounded-lg transition-all disabled:opacity-50"
+                            className="text-xs px-2.5 py-1 rounded-lg transition-all disabled:opacity-50"
+                            style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.4)', color: 'var(--destructive)' }}
                           >
                             {deleting ? '…' : 'Oui'}
                           </button>
                           <button
                             onClick={() => setConfirmInvitation(null)}
                             disabled={deleting}
-                            className="text-xs text-white/40 hover:text-white border border-white/10 px-2.5 py-1 rounded-lg transition-all"
+                            className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                            style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
                           >
                             Non
                           </button>
@@ -447,7 +464,10 @@ export default function Equipe() {
                       ) : (
                         <button
                           onClick={() => setConfirmInvitation(inv.id ?? null)}
-                          className="text-xs text-red-400/60 hover:text-red-400 border border-red-800/30 hover:border-red-600/50 px-2.5 py-1 rounded-lg transition-all"
+                          className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                          style={{ border: '1px solid rgba(239,68,68,0.3)', color: 'rgba(239,68,68,0.6)' }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--destructive)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.6)' }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(239,68,68,0.6)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(239,68,68,0.3)' }}
                         >
                           Annuler
                         </button>
@@ -462,8 +482,7 @@ export default function Equipe() {
 
       </main>
 
-      {/* Footer */}
-      <footer className="text-center text-[#15803d] text-xs tracking-widest py-8">
+      <footer className="text-center text-xs tracking-widest py-8" style={{ color: 'var(--text-muted)' }}>
         &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
       </footer>
     </div>

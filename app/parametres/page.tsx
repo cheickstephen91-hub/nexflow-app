@@ -17,12 +17,20 @@ function SectionCard({ id, title, icon, children }: {
   id?: string; title: string; icon: React.ReactNode; children: React.ReactNode
 }) {
   return (
-    <div id={id} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] scroll-mt-20">
-      <div className="flex items-center gap-3 mb-5 pb-4 border-b border-white/10">
-        <div className="w-8 h-8 rounded-lg bg-[#166534]/40 flex items-center justify-center text-[#22c55e]">
+    <div
+      id={id}
+      className="rounded-2xl p-6 scroll-mt-20"
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+      }}
+    >
+      <div className="flex items-center gap-3 mb-5 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
           {icon}
         </div>
-        <h2 className="text-[#f0fdf4] font-semibold text-base">{title}</h2>
+        <h2 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>{title}</h2>
       </div>
       {children}
     </div>
@@ -30,7 +38,11 @@ function SectionCard({ id, title, icon, children }: {
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-xs font-semibold tracking-widest text-[#86efac] uppercase mb-1.5">{children}</label>
+  return (
+    <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+      {children}
+    </label>
+  )
 }
 
 function TextInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
@@ -39,7 +51,12 @@ function TextInput({ value, onChange, placeholder }: { value: string; onChange: 
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full bg-white/5 border border-white/[0.15] text-white placeholder-white/25 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+      className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+      style={{
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border)',
+        color: 'var(--text-primary)',
+      }}
     />
   )
 }
@@ -49,7 +66,8 @@ function SaveButton({ onClick, loading, label = 'Enregistrer' }: { onClick: () =
     <button
       onClick={onClick}
       disabled={loading}
-      className="flex items-center gap-2 bg-[#22c55e] hover:bg-[#16a34a] disabled:bg-[#166534] disabled:cursor-not-allowed text-[#0a1a0f] disabled:text-[#0a1a0f]/40 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+      className="flex items-center gap-2 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+      style={{ background: '#2563eb', color: '#ffffff' }}
     >
       {loading ? (
         <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -69,12 +87,12 @@ function SaveButton({ onClick, loading, label = 'Enregistrer' }: { onClick: () =
 
 function SuccessBanner({ msg, onClose }: { msg: string; onClose: () => void }) {
   return (
-    <div className="flex items-center gap-3 bg-[#166534]/30 border border-[#22c55e]/30 rounded-xl px-4 py-3">
-      <svg className="w-4 h-4 text-[#22c55e] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: 'rgba(22,101,52,0.15)', border: '1px solid rgba(34,197,94,0.3)' }}>
+      <svg className="w-4 h-4 shrink-0" style={{ color: 'var(--success)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20 6L9 17l-5-5"/>
       </svg>
-      <p className="text-[#86efac] text-xs flex-1">{msg}</p>
-      <button onClick={onClose} className="text-[#86efac]/40 hover:text-[#86efac] transition-colors">
+      <p className="text-xs flex-1" style={{ color: 'var(--success)' }}>{msg}</p>
+      <button onClick={onClose} className="opacity-40 hover:opacity-100 transition-opacity" style={{ color: 'var(--success)' }}>
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -85,12 +103,12 @@ function SuccessBanner({ msg, onClose }: { msg: string; onClose: () => void }) {
 
 function ErrorBanner({ msg, onClose }: { msg: string; onClose: () => void }) {
   return (
-    <div className="flex items-center gap-3 bg-red-950/40 border border-red-700/40 rounded-xl px-4 py-3">
-      <svg className="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)' }}>
+      <svg className="w-4 h-4 shrink-0" style={{ color: 'var(--destructive)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
       </svg>
-      <p className="text-red-300 text-xs flex-1">{msg}</p>
-      <button onClick={onClose} className="text-red-400/40 hover:text-red-400 transition-colors">
+      <p className="text-xs flex-1" style={{ color: 'var(--destructive)' }}>{msg}</p>
+      <button onClick={onClose} className="opacity-40 hover:opacity-100 transition-opacity" style={{ color: 'var(--destructive)' }}>
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -105,30 +123,25 @@ export default function Parametres() {
   const { data: session, status } = useSession()
   const email = session?.user?.email ?? ''
 
-  /* Profile state */
   const [profile, setProfile] = useState<Partial<UserProfile>>({})
   const [loadingProfile, setLoadingProfile] = useState(true)
 
-  /* Sections loading/success/error */
   const [savingIdentite, setSavingIdentite] = useState(false)
   const [savingInfos, setSavingInfos] = useState(false)
   const [savingRapport, setSavingRapport] = useState(false)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  /* Logo */
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  /* Agents */
   const [agents, setAgents] = useState<Agent[]>([])
   const [newAgentNom, setNewAgentNom] = useState('')
   const [newAgentRole, setNewAgentRole] = useState('')
   const [addingAgent, setAddingAgent] = useState(false)
 
-  /* Load profile on mount */
   useEffect(() => {
     if (!email) return
     Promise.all([getUserProfile(email), getAgents(email)]).then(([p, a]) => {
@@ -151,7 +164,6 @@ export default function Parametres() {
     setTimeout(() => setErrorMsg(null), 6000)
   }
 
-  /* ── Identité visuelle ── */
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -184,7 +196,6 @@ export default function Parametres() {
     setSavingIdentite(false)
   }
 
-  /* ── Informations ── */
   async function handleSaveInfos() {
     if (!email) return
     setSavingInfos(true)
@@ -211,7 +222,6 @@ export default function Parametres() {
     setSavingInfos(false)
   }
 
-  /* ── Agents ── */
   async function handleAddAgent() {
     if (!email || !newAgentNom.trim()) return
     setAddingAgent(true)
@@ -234,7 +244,6 @@ export default function Parametres() {
     showSuccess('Agent supprimé.')
   }
 
-  /* ── Rapports ── */
   async function handleSaveRapport() {
     if (!email) return
     setSavingRapport(true)
@@ -252,26 +261,26 @@ export default function Parametres() {
 
   if (status === 'loading' || loadingProfile) {
     return (
-      <div className="min-h-screen bg-[#0a1a0f] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-[#22c55e] border-t-transparent animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a1a0f] relative">
+    <div className="min-h-screen relative" style={{ background: 'var(--bg-primary)' }}>
 
       {/* Background decorators */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#22c55e]/[0.06] rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 right-1/3 w-[400px] h-[400px] bg-[#166534]/[0.05] rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.04)' }} />
+        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.03)' }} />
+        <div className="absolute -bottom-40 right-1/3 w-[400px] h-[400px] rounded-full blur-3xl" style={{ background: 'rgba(22,101,52,0.03)' }} />
       </div>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <div>
-          <h1 className="text-[#f0fdf4] text-xl font-bold">Param&egrave;tres</h1>
-          <p className="text-[#4ade80]/50 text-xs mt-0.5">Gestion des int&eacute;grations et pr&eacute;f&eacute;rences</p>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Param&egrave;tres</h1>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Gestion des int&eacute;grations et pr&eacute;f&eacute;rences</p>
         </div>
 
         {successMsg && <SuccessBanner msg={successMsg} onClose={() => setSuccessMsg(null)} />}
@@ -282,28 +291,27 @@ export default function Parametres() {
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         }>
           <div className="flex items-start gap-6 mb-5">
-            {/* Aperçu logo */}
             <div className="shrink-0">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-24 h-24 rounded-2xl border-2 border-dashed border-white/15 hover:border-[#22c55e]/50 bg-white/[0.03] flex items-center justify-center cursor-pointer transition-all overflow-hidden group"
+                className="w-24 h-24 rounded-2xl border-2 border-dashed flex items-center justify-center cursor-pointer transition-all overflow-hidden"
+                style={{ borderColor: 'var(--border)', background: 'var(--bg-card-hover)' }}
               >
                 {logoPreview ? (
                   <img src={logoPreview} alt="Logo" className="w-full h-full object-contain p-1" />
                 ) : (
                   <div className="text-center p-2">
-                    <svg className="w-7 h-7 text-[#22c55e]/40 mx-auto mb-1 group-hover:text-[#22c55e]/70 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="w-7 h-7 mx-auto mb-1" style={{ color: 'var(--accent)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    <p className="text-[#86efac]/30 text-[9px] leading-tight">Cliquer pour<br/>uploader</p>
+                    <p className="text-[9px] leading-tight" style={{ color: 'var(--text-muted)' }}>Cliquer pour<br/>uploader</p>
                   </div>
                 )}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
-              <p className="text-[#86efac]/30 text-[10px] text-center mt-1">JPG, PNG, SVG</p>
+              <p className="text-[10px] text-center mt-1" style={{ color: 'var(--text-muted)' }}>JPG, PNG, SVG</p>
             </div>
 
-            {/* Nom entreprise */}
             <div className="flex-1">
               <FieldLabel>Nom de l&apos;entreprise</FieldLabel>
               <TextInput
@@ -311,7 +319,7 @@ export default function Parametres() {
                 onChange={(v) => setProfile((p) => ({ ...p, nom_entreprise: v }))}
                 placeholder="Ex : Agence Nexflow"
               />
-              <p className="text-[#86efac]/30 text-xs mt-2">Ce nom appara&icirc;tra dans tous les PDF g&eacute;n&eacute;r&eacute;s.</p>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Ce nom appara&icirc;tra dans tous les PDF g&eacute;n&eacute;r&eacute;s.</p>
             </div>
           </div>
 
@@ -323,8 +331,7 @@ export default function Parametres() {
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
         }>
           <div className="space-y-4 mb-5">
-            {/* Profil Directeur */}
-            <p className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase">Profil Directeur</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Profil Directeur</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <FieldLabel>Prénom</FieldLabel>
@@ -336,8 +343,7 @@ export default function Parametres() {
               </div>
             </div>
 
-            {/* Agence */}
-            <p className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase pt-2">Agence</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--text-muted)' }}>Agence</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <FieldLabel>Adresse</FieldLabel>
@@ -369,18 +375,17 @@ export default function Parametres() {
               </div>
             </div>
 
-            {/* Services & Zones */}
-            <p className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase pt-2">Services & Zones</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--text-muted)' }}>Services &amp; Zones</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <FieldLabel>Services proposés</FieldLabel>
                 <TextInput value={profile.services ?? ''} onChange={(v) => setProfile((p) => ({ ...p, services: v }))} placeholder="location,vente,gestion" />
-                <p className="text-white/25 text-[10px] mt-1">Séparés par des virgules</p>
+                <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Séparés par des virgules</p>
               </div>
               <div>
                 <FieldLabel>Zones d&apos;intervention</FieldLabel>
                 <TextInput value={profile.zones ?? ''} onChange={(v) => setProfile((p) => ({ ...p, zones: v }))} placeholder="Cocody,Plateau,Marcory" />
-                <p className="text-white/25 text-[10px] mt-1">Séparées par des virgules</p>
+                <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Séparées par des virgules</p>
               </div>
               <div>
                 <FieldLabel>Biens en portefeuille</FieldLabel>
@@ -395,20 +400,22 @@ export default function Parametres() {
         <SectionCard id="agents" title="Gestion des agents" icon={
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         }>
-          {/* Liste agents */}
           {agents.length === 0 ? (
-            <p className="text-[#86efac]/30 text-sm text-center py-4">Aucun agent ajout&eacute; pour le moment.</p>
+            <p className="text-sm text-center py-4" style={{ color: 'var(--text-muted)' }}>Aucun agent ajout&eacute; pour le moment.</p>
           ) : (
             <div className="space-y-2 mb-4">
               {agents.map((a) => (
-                <div key={a.id} className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5">
+                <div key={a.id} className="flex items-center justify-between rounded-xl px-4 py-2.5" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)' }}>
                   <div>
-                    <p className="text-[#f0fdf4] text-sm font-medium">{a.nom}</p>
-                    {a.role && <p className="text-[#86efac]/50 text-xs">{a.role}</p>}
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{a.nom}</p>
+                    {a.role && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{a.role}</p>}
                   </div>
                   <button
                     onClick={() => a.id && handleDeleteAgent(a.id)}
-                    className="text-red-400/50 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-950/30"
+                    className="p-1.5 rounded-lg transition-all"
+                    style={{ color: 'rgba(239,68,68,0.5)' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--destructive)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.08)' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(239,68,68,0.5)'; (e.currentTarget as HTMLButtonElement).style.background = '' }}
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
@@ -419,27 +426,29 @@ export default function Parametres() {
             </div>
           )}
 
-          {/* Ajout agent */}
-          <div className="border-t border-white/10 pt-4">
-            <p className="text-[#86efac]/60 text-xs font-semibold tracking-widest uppercase mb-3">Ajouter un agent</p>
+          <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-secondary)' }}>Ajouter un agent</p>
             <div className="flex gap-2 mb-2">
               <input
                 value={newAgentNom}
                 onChange={(e) => setNewAgentNom(e.target.value)}
                 placeholder="Nom de l'agent"
-                className="flex-1 bg-white/5 border border-white/[0.15] text-white placeholder-white/25 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                className="flex-1 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
+                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
               />
               <input
                 value={newAgentRole}
                 onChange={(e) => setNewAgentRole(e.target.value)}
                 placeholder="Rôle (optionnel)"
-                className="flex-1 bg-white/5 border border-white/[0.15] text-white placeholder-white/25 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                className="flex-1 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
+                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
               />
             </div>
             <button
               onClick={handleAddAgent}
               disabled={!newAgentNom.trim() || addingAgent}
-              className="flex items-center gap-2 border border-[#22c55e]/40 hover:border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/5 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200"
+              className="flex items-center gap-2 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ border: '1px solid var(--accent)', color: 'var(--accent)', background: 'var(--accent-light)' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               {addingAgent ? 'Ajout...' : 'Ajouter'}
@@ -451,52 +460,62 @@ export default function Parametres() {
         <SectionCard id="stockage" title="Stockage" icon={
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg>
         }>
-          {/* Nexflow Cloud — toujours actif */}
-          <div className="mb-4 pb-4 border-b border-white/10">
+          {/* Nexflow Cloud */}
+          <div className="mb-4 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#166534]/40 flex items-center justify-center shrink-0">
-                  <svg className="w-4 h-4 text-[#22c55e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
                   </svg>
                 </div>
                 <div>
-                  <p className="text-[#f0fdf4] text-sm font-semibold">Nexflow Cloud</p>
-                  <p className="text-[#86efac]/40 text-xs">Stockage sécurisé par défaut</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Nexflow Cloud</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Stockage sécurisé par défaut</p>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
-                <span className="text-[#22c55e] text-xs font-semibold">Actif par défaut</span>
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--success)' }} />
+                <span className="text-xs font-semibold" style={{ color: 'var(--success)' }}>Actif par défaut</span>
               </div>
             </div>
-            <p className="text-[#86efac]/30 text-xs mt-2.5 pl-11">
+            <p className="text-xs mt-2.5 pl-11" style={{ color: 'var(--text-muted)' }}>
               Vos fiches sont automatiquement sauvegardées dans la base de données Nexflow (Supabase). Ce stockage est inclus et ne peut pas être désactivé.
             </p>
           </div>
 
           {/* Google Drive */}
-          <div className="mb-4 pb-4 border-b border-white/10">
+          <div className="mb-4 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3 mb-3">
               <svg viewBox="0 0 87.3 78" className="w-5 h-5 shrink-0"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L28.1 52H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="M43.65 25L29.35 0c-1.35.8-2.5 1.9-3.3 3.3L1.2 47.5C.4 48.9 0 50.45 0 52h28.1z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.2l5.9 11.75z" fill="#ea4335"/><path d="M43.65 25L57.95 0H29.35z" fill="#00832d"/><path d="M59.2 52h28.1L73.55 28.5 57.95 0 43.65 25z" fill="#2684fc"/><path d="M28.1 52l-14.3 24.8c1.35.8 2.9 1.2 4.5 1.2h50.7c1.6 0 3.15-.45 4.5-1.2L59.2 52z" fill="#ffba00"/></svg>
               <div>
-                <p className="text-[#f0fdf4] text-sm font-semibold">Google Drive</p>
-                <p className="text-[#86efac]/40 text-xs">Dossier : &ldquo;Nexflow - Fiches Qualification&rdquo;</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Google Drive</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Dossier : &ldquo;Nexflow - Fiches Qualification&rdquo;</p>
               </div>
             </div>
             {session?.access_token ? (
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2 bg-[#166534]/20 border border-[#22c55e]/20 rounded-xl px-3 py-2 text-xs">
+                <div className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs" style={{ background: 'var(--accent-light)', border: '1px solid rgba(34,197,94,0.2)' }}>
                   {session.user?.image && <img src={session.user.image} alt="" className="w-5 h-5 rounded-full"/>}
-                  <span className="text-[#86efac]">{session.user?.email}</span>
-                  <span className="flex items-center gap-1 text-[#22c55e]"><span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"/>Connect&eacute;</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{session.user?.email}</span>
+                  <span className="flex items-center gap-1" style={{ color: 'var(--success)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }}/>
+                    Connect&eacute;
+                  </span>
                 </div>
-                <button onClick={() => signOut({ callbackUrl: '/login' })} className="text-red-400/60 hover:text-red-400 text-xs border border-red-800/30 hover:border-red-600/50 rounded-lg px-3 py-2 transition-all">
+                <button
+                  onClick={() => signOut({ callbackUrl: '/login' })}
+                  className="text-xs rounded-lg px-3 py-2 transition-all"
+                  style={{ color: 'rgba(239,68,68,0.6)', border: '1px solid rgba(239,68,68,0.3)' }}
+                >
                   D&eacute;connecter
                 </button>
               </div>
             ) : (
-              <button onClick={() => signIn('google', { callbackUrl: '/parametres' })} className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all hover:scale-[1.02] shadow-md shadow-black/20">
+              <button
+                onClick={() => signIn('google', { callbackUrl: '/parametres' })}
+                className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all hover:scale-[1.02] shadow-md shadow-black/10"
+              >
                 <svg viewBox="0 0 24 24" className="w-4 h-4"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                 Connecter Google Drive
               </button>
@@ -508,11 +527,11 @@ export default function Parametres() {
             <div className="flex items-center gap-3">
               <svg viewBox="0 0 96 96" className="w-5 h-5 shrink-0"><defs><linearGradient id="od2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#0364b8"/><stop offset="100%" stopColor="#0078d4"/></linearGradient></defs><path d="M57.9 26.2A22.06 22.06 0 0 0 37.1 14a22.07 22.07 0 0 0-20.6 14.2A18 18 0 0 0 18 64h38.6l1.2-.7A18 18 0 0 0 57.9 26.2z" fill="#0364b8"/><path d="M62.9 32.2a18 18 0 0 0-2.7.2 22.1 22.1 0 0 1 4.5 14.7A18 18 0 0 1 54 63.4l-.6.6H78a18 18 0 0 0 0-36 17.93 17.93 0 0 0-15.1 4.2z" fill="url(#od2)"/></svg>
               <div>
-                <p className="text-[#f0fdf4] text-sm font-semibold">OneDrive</p>
-                <p className="text-[#86efac]/30 text-xs">Int&eacute;gration Microsoft</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>OneDrive</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Int&eacute;gration Microsoft</p>
               </div>
             </div>
-            <span className="text-xs bg-white/5 text-white/30 border border-white/10 px-2.5 py-1 rounded-full">Bientôt disponible</span>
+            <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>Bientôt disponible</span>
           </div>
         </SectionCard>
 
@@ -526,10 +545,11 @@ export default function Parametres() {
               <select
                 value={profile.rapport_frequence ?? 'Désactivé'}
                 onChange={(e) => setProfile((p) => ({ ...p, rapport_frequence: e.target.value }))}
-                className="w-full bg-white/5 border border-white/[0.15] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]/70 focus:ring-1 focus:ring-[#22c55e]/20 transition-all appearance-none"
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all appearance-none"
+                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
               >
                 {['Désactivé', 'Quotidien', 'Hebdomadaire'].map((o) => (
-                  <option key={o} value={o} className="bg-[#0f2318]">{o}</option>
+                  <option key={o} value={o}>{o}</option>
                 ))}
               </select>
             </div>
@@ -550,18 +570,19 @@ export default function Parametres() {
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         }>
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 flex-1 min-w-0">
+            <div className="flex items-center gap-3 rounded-xl px-4 py-3 flex-1 min-w-0" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)' }}>
               {session?.user?.image && (
                 <img src={session.user.image} alt="" className="w-8 h-8 rounded-full shrink-0"/>
               )}
               <div className="min-w-0">
-                <p className="text-[#86efac]/50 text-[10px] tracking-widest uppercase">Compte connect&eacute;</p>
-                <p className="text-[#f0fdf4] text-sm truncate">{email}</p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Compte connect&eacute;</p>
+                <p className="text-sm truncate" style={{ color: 'var(--text-primary)' }}>{email}</p>
               </div>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
-              className="flex items-center gap-2 border border-red-800/40 hover:border-red-600/60 text-red-400 hover:text-red-300 text-sm font-medium py-3 px-5 rounded-xl transition-all shrink-0"
+              className="flex items-center gap-2 text-sm font-medium py-3 px-5 rounded-xl transition-all shrink-0"
+              style={{ border: '1px solid rgba(239,68,68,0.4)', color: 'var(--destructive)' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -571,7 +592,7 @@ export default function Parametres() {
           </div>
         </SectionCard>
 
-        <p className="text-center text-[#15803d] text-xs tracking-widest pb-4">
+        <p className="text-center text-xs tracking-widest pb-4" style={{ color: 'var(--text-muted)' }}>
           &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
         </p>
       </main>
