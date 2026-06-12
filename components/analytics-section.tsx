@@ -79,8 +79,8 @@ function GlassTooltip({ active, payload, label }: {
 function DonutCenter({ total }: { total: number }) {
   return (
     <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
-      <tspan x="50%" dy="-6" fontSize={22} fontWeight={700} fill="#1e293b">{total}</tspan>
-      <tspan x="50%" dy={18} fontSize={10} fill="#64748b">fiches</tspan>
+      <tspan x="50%" dy="-6" fontSize={32} fontWeight={700} fill="#1e293b">{total}</tspan>
+      <tspan x="50%" dy={20} fontSize={12} fill="#64748b">fiches</tspan>
     </text>
   )
 }
@@ -267,7 +267,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
         <div className="lg:col-span-2">
           {loading || !mounted ? <SkeletonCard tall /> : (
             <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-              <h3 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: '#64748b' }}>
+              <h3 className="uppercase mb-4" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
                 Évolution des fiches
               </h3>
               <ResponsiveContainer width="100%" height={200}>
@@ -275,13 +275,13 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    tick={{ fill: '#64748b', fontSize: 12 }}
                     axisLine={{ stroke: '#e2e8f0' }}
                     tickLine={false}
                     interval="preserveStartEnd"
                   />
                   <YAxis
-                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    tick={{ fill: '#64748b', fontSize: 12 }}
                     axisLine={false}
                     tickLine={false}
                     allowDecimals={false}
@@ -305,7 +305,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
         <div>
           {loading || !mounted ? <SkeletonCard /> : (
             <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-              <h3 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: '#64748b' }}>
+              <h3 className="uppercase mb-4" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
                 Par urgence
               </h3>
               <ResponsiveContainer width="100%" height={200}>
@@ -344,7 +344,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
                   <Legend
                     iconType="circle"
                     iconSize={7}
-                    wrapperStyle={{ fontSize: '11px', color: '#64748b', paddingTop: '8px' }}
+                    wrapperStyle={{ fontSize: '0.8125rem', color: '#64748b', paddingTop: '8px' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -356,7 +356,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
         <div className="lg:col-span-3">
           {loading || !mounted ? <SkeletonCard /> : (
             <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
-              <h3 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: '#64748b' }}>
+              <h3 className="uppercase mb-4" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
                 Fiches par source de contact
               </h3>
               {(data?.sources ?? []).length === 0 ? (
@@ -365,8 +365,8 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
                 <ResponsiveContainer width="100%" height={180}>
                   <BarChart data={data?.sources ?? []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} barSize={32}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                    <XAxis dataKey="source" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <XAxis dataKey="source" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
                     <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                     <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                       {(data?.sources ?? []).map((entry, i) => (

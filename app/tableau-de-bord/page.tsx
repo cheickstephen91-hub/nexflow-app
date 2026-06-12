@@ -73,12 +73,12 @@ function StatCard({ label, value, icon, accentBg, loading }: {
         {icon}
       </div>
       <div>
-        <p className="tracking-widest uppercase font-medium mb-0.5" style={{ color: '#64748b', fontSize: '0.75rem' }}>
+        <p className="uppercase mb-0.5" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
           {label}
         </p>
         {loading
-          ? <div className="h-7 w-12 rounded animate-pulse" style={{ background: 'var(--border)' }} />
-          : <p style={{ color: '#1e293b', fontSize: '2rem', fontWeight: 700, lineHeight: 1.1 }}>{value}</p>
+          ? <div className="h-8 w-14 rounded animate-pulse" style={{ background: 'var(--border)' }} />
+          : <p style={{ color: '#1e293b', fontSize: '2.25rem', fontWeight: 700, lineHeight: 1.1 }}>{value}</p>
         }
       </div>
     </div>
@@ -100,17 +100,17 @@ function StatBarChart({ title, data, barColor }: {
       style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
       <h3
-        className="text-[10px] font-semibold tracking-widest uppercase mb-4"
-        style={{ color: 'var(--text-muted)' }}
+        className="uppercase mb-4"
+        style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}
       >
         {title}
       </h3>
       <div className="space-y-3">
         {data.map((d) => (
           <div key={d.label}>
-            <div className="flex justify-between text-xs mb-1">
-              <span className="truncate max-w-[65%]" style={{ color: 'var(--text-primary)' }}>{d.label}</span>
-              <span className="shrink-0 ml-1" style={{ color: 'var(--text-muted)' }}>
+            <div className="flex justify-between mb-1" style={{ fontSize: '0.875rem' }}>
+              <span className="truncate max-w-[65%]" style={{ color: '#1e293b' }}>{d.label}</span>
+              <span className="shrink-0 ml-1" style={{ color: '#64748b' }}>
                 {d.count}&nbsp;({total ? Math.round((d.count / total) * 100) : 0}%)
               </span>
             </div>
@@ -320,8 +320,8 @@ export default function TableauDeBord() {
         {/* En-tête */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl" style={{ color: '#1e293b', fontWeight: 600 }}>Tableau de bord</h1>
-            <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Suivi en temps réel des fiches de qualification</p>
+            <h1 style={{ color: '#1e293b', fontSize: '1.5rem', fontWeight: 700 }}>Tableau de bord</h1>
+            <p className="mt-0.5" style={{ color: '#64748b', fontSize: '0.875rem' }}>Suivi en temps réel des fiches de qualification</p>
           </div>
           <button
             onClick={() => fetchFiches(userEmail)}
@@ -383,7 +383,7 @@ export default function TableauDeBord() {
         {/* Statistiques */}
         {!loading && fiches.length > 0 && (
           <div>
-            <h2 className="text-[10px] tracking-widest uppercase mb-3" style={{ color: '#64748b', fontWeight: 600 }}>
+            <h2 className="uppercase mb-3" style={{ color: '#64748b', fontSize: '0.8125rem', fontWeight: 600, letterSpacing: '0.05em' }}>
               Statistiques
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -557,8 +557,8 @@ export default function TableauDeBord() {
                     {['Date / Heure', 'Prospect', 'Téléphone', 'Source', 'Motif', 'Urgence', 'Transmettre à'].map((h) => (
                       <th
                         key={h}
-                        className="text-left text-xs font-semibold tracking-wider uppercase px-4 py-3 whitespace-nowrap"
-                        style={{ color: 'var(--text-muted)' }}
+                        className="text-left uppercase px-4 py-3 whitespace-nowrap"
+                        style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}
                       >
                         {h}
                       </th>
@@ -577,17 +577,17 @@ export default function TableauDeBord() {
                         style={{ borderBottom: !isLast ? '1px solid var(--border)' : undefined }}
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{date}</span>
-                          <span className="text-xs ml-1.5" style={{ color: 'var(--text-muted)' }}>{time}</span>
+                          <span style={{ color: '#1e293b', fontSize: '0.875rem', fontWeight: 500 }}>{date}</span>
+                          <span className="ml-1.5" style={{ color: '#64748b', fontSize: '0.75rem' }}>{time}</span>
                         </td>
-                        <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>
-                          {f.nom_prospect || <span className="italic" style={{ color: 'var(--text-muted)' }}>Inconnu</span>}
+                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: '#1e293b', fontSize: '0.875rem', fontWeight: 500 }}>
+                          {f.nom_prospect || <span className="italic" style={{ color: '#94a3b8' }}>Inconnu</span>}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        <td className="px-4 py-3 whitespace-nowrap font-mono" style={{ color: '#475569', fontSize: '0.875rem' }}>
                           {f.telephone || '—'}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{f.source || '—'}</td>
-                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{f.motif  || '—'}</td>
+                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: '#475569', fontSize: '0.875rem' }}>{f.source || '—'}</td>
+                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: '#475569', fontSize: '0.875rem' }}>{f.motif  || '—'}</td>
                         <td className="px-4 py-3"><UrgenceBadge value={f.urgence ?? ''} /></td>
                         <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
                           {f.transmettre_a || <span style={{ color: 'var(--text-muted)' }}>—</span>}
