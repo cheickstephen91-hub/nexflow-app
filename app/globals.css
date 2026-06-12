@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
+/* ── Dark mode via .dark class on <html> ── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Light theme (default) ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary:    #f8fafc;
+  --bg-card:       #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border:        #e2e8f0;
+  --text-primary:  #1f2937;
+  --text-secondary:#6b7280;
+  --text-muted:    #9ca3af;
+  --accent:        #2563eb;
+  --accent-hover:  #1d4ed8;
+  --accent-light:  #eff6ff;
+  --sidebar-bg:    #1e3a5f;
+  --sidebar-item-active: #2563eb;
+  --destructive:   #ef4444;
+  --success:       #22c55e;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Dark theme ── */
+html.dark {
+  --bg-primary:    #0a1a0f;
+  --bg-card:       rgba(255,255,255,0.05);
+  --bg-card-hover: rgba(255,255,255,0.08);
+  --border:        rgba(255,255,255,0.10);
+  --text-primary:  #f0fdf4;
+  --text-secondary:#86efac;
+  --text-muted:    rgba(134,239,172,0.4);
+  --accent:        #22c55e;
+  --accent-hover:  #16a34a;
+  --accent-light:  rgba(34,197,94,0.1);
+  --sidebar-bg:    #0d2318;
+  --sidebar-item-active: #22c55e;
+  --destructive:   #f87171;
+  --success:       #22c55e;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ── */
+html {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  min-height: 100%;
+  transition: background-color 300ms ease, color 300ms ease;
 }
+
+/* ── Smooth transitions on theme change ── */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* ── Disable transitions on explicit no-transition elements ── */
+.no-transition,
+.no-transition * {
+  transition: none !important;
+}
+
+/* ── Sidebar slide-in animation ── */
+@keyframes sidebar-item-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.sidebar-item-animate {
+  animation: sidebar-item-in 250ms ease forwards;
+}
+
+/* ── Card hover lift ── */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease !important;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* ── Scrollbar (light) ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+/* ── Scrollbar (dark) ── */
+html.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
