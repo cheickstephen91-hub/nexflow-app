@@ -38,19 +38,19 @@ function topN(arr: Fiche[], key: keyof Fiche, n = 5): { label: string; count: nu
 /* ── badge urgence ── */
 
 function UrgenceBadge({ value }: { value: string }) {
-  const styles: Record<string, string> = {
-    Urgent:       'bg-red-950/60 text-red-400 border border-red-700/40',
-    Normal:       'bg-orange-950/60 text-orange-400 border border-orange-700/40',
-    'Pas pressé': 'bg-emerald-950/60 text-emerald-400 border border-emerald-700/40',
+  const styles: Record<string, React.CSSProperties> = {
+    Urgent:       { background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' },
+    Normal:       { background: '#fff7ed', color: '#ea580c', border: '1px solid #fed7aa' },
+    'Pas pressé': { background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' },
   }
   const dots: Record<string, string> = {
-    Urgent: 'bg-red-500', Normal: 'bg-orange-400', 'Pas pressé': 'bg-emerald-400',
+    Urgent: '#dc2626', Normal: '#ea580c', 'Pas pressé': '#16a34a',
   }
-  const cls = styles[value] ?? 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-  const dot = dots[value]  ?? 'bg-zinc-400'
+  const s   = styles[value] ?? { background: 'var(--bg-card-hover)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }
+  const dot = dots[value]   ?? 'var(--text-muted)'
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${cls}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap" style={s}>
+      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dot }} />
       {value || '—'}
     </span>
   )
@@ -58,19 +58,27 @@ function UrgenceBadge({ value }: { value: string }) {
 
 /* ── carte stat ── */
 
-function StatCard({ label, value, icon, accent, loading }: {
-  label: string; value: number; icon: React.ReactNode; accent: string; loading: boolean
+function StatCard({ label, value, icon, accentBg, loading }: {
+  label: string; value: number; icon: React.ReactNode; accentBg: string; loading: boolean
 }) {
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex items-center gap-4 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${accent}`}>
+    <div
+      className="rounded-2xl p-5 flex items-center gap-4 shadow-sm"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    >
+      <div
+        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: accentBg }}
+      >
         {icon}
       </div>
       <div>
-        <p className="text-[#86efac]/70 text-xs tracking-widest uppercase font-medium mb-0.5">{label}</p>
+        <p className="text-xs tracking-widest uppercase font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>
+          {label}
+        </p>
         {loading
-          ? <div className="h-7 w-12 bg-white/10 rounded animate-pulse" />
-          : <p className="text-[#f0fdf4] text-2xl font-bold">{value}</p>
+          ? <div className="h-7 w-12 rounded animate-pulse" style={{ background: 'var(--border)' }} />
+          : <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{value}</p>
         }
       </div>
     </div>
@@ -79,29 +87,37 @@ function StatCard({ label, value, icon, accent, loading }: {
 
 /* ── graphique barre CSS ── */
 
-function StatBarChart({ title, data, barClass }: {
+function StatBarChart({ title, data, barColor }: {
   title: string
   data: { label: string; count: number }[]
-  barClass: string
+  barColor: string
 }) {
   const max   = Math.max(...data.map((d) => d.count), 1)
   const total = data.reduce((s, d) => s + d.count, 0)
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-      <h3 className="text-[#86efac]/60 text-[10px] font-semibold tracking-widest uppercase mb-4">{title}</h3>
+    <div
+      className="rounded-2xl p-5 shadow-sm"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    >
+      <h3
+        className="text-[10px] font-semibold tracking-widest uppercase mb-4"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {title}
+      </h3>
       <div className="space-y-3">
         {data.map((d) => (
           <div key={d.label}>
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-[#f0fdf4] truncate max-w-[65%]">{d.label}</span>
-              <span className="text-[#86efac]/40 shrink-0 ml-1">
+              <span className="truncate max-w-[65%]" style={{ color: 'var(--text-primary)' }}>{d.label}</span>
+              <span className="shrink-0 ml-1" style={{ color: 'var(--text-muted)' }}>
                 {d.count}&nbsp;({total ? Math.round((d.count / total) * 100) : 0}%)
               </span>
             </div>
-            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
               <div
-                className={`h-full rounded-full transition-all duration-700 ${barClass}`}
-                style={{ width: `${(d.count / max) * 100}%` }}
+                className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${(d.count / max) * 100}%`, background: barColor }}
               />
             </div>
           </div>
@@ -130,7 +146,6 @@ const FICHE_LABELS: { key: keyof Fiche; label: string }[] = [
 function FicheDetailPanel({ fiche, onClose }: { fiche: Fiche; onClose: () => void }) {
   const dt = fiche.created_at ? formatDate(fiche.created_at) : null
 
-  /* Close on Escape */
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
@@ -140,24 +155,29 @@ function FicheDetailPanel({ fiche, onClose }: { fiche: Fiche; onClose: () => voi
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/50 z-30" onClick={onClose} />
       {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-[#0d1f11]/90 backdrop-blur-2xl border-l border-white/10 z-40 flex flex-col shadow-2xl shadow-black/60">
-
+      <div
+        className="fixed right-0 top-0 h-full w-full max-w-md z-40 flex flex-col shadow-2xl"
+        style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}
+      >
         {/* Header */}
-        <div className="flex items-start justify-between px-5 py-4 border-b border-white/10 shrink-0">
+        <div
+          className="flex items-start justify-between px-5 py-4 shrink-0"
+          style={{ borderBottom: '1px solid var(--border)' }}
+        >
           <div className="min-w-0 pr-3">
-            <p className="text-[#f0fdf4] font-bold text-base truncate">
+            <p className="font-bold text-base truncate" style={{ color: 'var(--text-primary)' }}>
               {fiche.nom_prospect || 'Prospect inconnu'}
             </p>
-            {dt && <p className="text-[#86efac]/40 text-xs mt-0.5">{dt.full}</p>}
+            {dt && (
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{dt.full}</p>
+            )}
           </div>
           <button
             onClick={onClose}
-            className="shrink-0 p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/40 hover:text-white transition-all"
+            className="shrink-0 p-2 rounded-lg transition-all"
+            style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12"/>
@@ -178,13 +198,17 @@ function FicheDetailPanel({ fiche, onClose }: { fiche: Fiche; onClose: () => voi
             const val = fiche[key]
             if (!val) return null
             return (
-              <div key={key} className="bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3">
-                <p className="text-[#86efac]/40 text-[10px] font-semibold tracking-widest uppercase mb-0.5">
+              <div
+                key={key}
+                className="rounded-xl px-4 py-3"
+                style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)' }}
+              >
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-0.5" style={{ color: 'var(--text-muted)' }}>
                   {label}
                 </p>
                 {key === 'urgence'
                   ? <UrgenceBadge value={String(val)} />
-                  : <p className="text-[#f0fdf4] text-sm leading-relaxed break-words">{String(val)}</p>
+                  : <p className="text-sm leading-relaxed break-words" style={{ color: 'var(--text-primary)' }}>{String(val)}</p>
                 }
               </div>
             )
@@ -193,8 +217,8 @@ function FicheDetailPanel({ fiche, onClose }: { fiche: Fiche; onClose: () => voi
 
         {/* ID footer */}
         {fiche.id && (
-          <div className="px-5 py-3 border-t border-white/10 shrink-0">
-            <p className="text-[#1e4a2e] text-[10px] font-mono">ID : {fiche.id}</p>
+          <div className="px-5 py-3 shrink-0" style={{ borderTop: '1px solid var(--border)' }}>
+            <p className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>ID : {fiche.id}</p>
           </div>
         )}
       </div>
@@ -211,11 +235,9 @@ export default function TableauDeBord() {
   const [error, setError]                 = useState<string | null>(null)
   const [selectedFiche, setSelectedFiche] = useState<Fiche | null>(null)
 
-  /* plage analytics — synchronisée depuis AnalyticsSection */
   const [analyticsFrom, setAnalyticsFrom] = useState('')
   const [analyticsTo,   setAnalyticsTo]   = useState('')
 
-  /* filtres */
   const [filterNom,     setFilterNom]     = useState('')
   const [filterSource,  setFilterSource]  = useState('')
   const [filterMotif,   setFilterMotif]   = useState('')
@@ -254,7 +276,6 @@ export default function TableauDeBord() {
   const today    = fiches.filter((f) => f.created_at?.slice(0, 10) === todayISO()).length
   const urgentes = fiches.filter((f) => f.urgence === 'Urgent').length
 
-  /* fiches filtrées par la plage analytics pour les stats */
   const fichesByRange = (analyticsFrom || analyticsTo)
     ? fiches.filter((f) => {
         const d = f.created_at?.slice(0, 10) ?? ''
@@ -285,11 +306,18 @@ export default function TableauDeBord() {
     setFilterUrgence(''); setFilterDateDu(''); setFilterDateAu('')
   }
 
+  const inputStyle: React.CSSProperties = {
+    background: 'var(--bg-card-hover)',
+    border: '1px solid var(--border)',
+    color: 'var(--text-primary)',
+  }
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* Refresh button */}
+
+        {/* En-tête */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Tableau de bord</h1>
@@ -298,8 +326,8 @@ export default function TableauDeBord() {
           <button
             onClick={() => fetchFiches(userEmail)}
             title="Actualiser"
-            className="p-2 rounded-lg border transition-all"
-            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+            className="p-2 rounded-lg transition-all"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -313,9 +341,10 @@ export default function TableauDeBord() {
         {/* Cartes stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
-            label="Total des fiches" value={total} loading={loading} accent="bg-[#166534]/40"
+            label="Total des fiches" value={total} loading={loading}
+            accentBg="rgba(34,197,94,0.12)"
             icon={
-              <svg className="w-6 h-6 text-[#22c55e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-6 h-6" style={{ color: '#22c55e' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
                 <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
@@ -324,9 +353,10 @@ export default function TableauDeBord() {
             }
           />
           <StatCard
-            label="Fiches aujourd'hui" value={today} loading={loading} accent="bg-blue-950/60"
+            label="Fiches aujourd'hui" value={today} loading={loading}
+            accentBg="rgba(59,130,246,0.12)"
             icon={
-              <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-6 h-6" style={{ color: '#3b82f6' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>
@@ -334,9 +364,10 @@ export default function TableauDeBord() {
             }
           />
           <StatCard
-            label="Fiches urgentes" value={urgentes} loading={loading} accent="bg-red-950/60"
+            label="Fiches urgentes" value={urgentes} loading={loading}
+            accentBg="rgba(239,68,68,0.12)"
             icon={
-              <svg className="w-6 h-6 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-6 h-6" style={{ color: '#ef4444' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                 <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
@@ -344,41 +375,43 @@ export default function TableauDeBord() {
           />
         </div>
 
-        {/* ── Section Analytiques ── */}
+        {/* Section Analytiques */}
         <AnalyticsSection
           onRangeChange={(from, to) => { setAnalyticsFrom(from); setAnalyticsTo(to) }}
         />
 
-        {/* Section statistiques */}
+        {/* Statistiques */}
         {!loading && fiches.length > 0 && (
           <div>
-            <h2 className="text-[#86efac]/50 text-[10px] font-semibold tracking-widest uppercase mb-3">
+            <h2 className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
               Statistiques
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatBarChart title="Par source"  data={bySource}  barClass="bg-[#22c55e]" />
-              <StatBarChart title="Par motif"   data={byMotif}   barClass="bg-blue-500"  />
-              <StatBarChart title="Par urgence" data={byUrgence} barClass="bg-orange-500"/>
+              <StatBarChart title="Par source"  data={bySource}  barColor="var(--success)" />
+              <StatBarChart title="Par motif"   data={byMotif}   barColor="#3b82f6"        />
+              <StatBarChart title="Par urgence" data={byUrgence} barColor="#f97316"        />
             </div>
           </div>
         )}
 
         {/* Erreur */}
         {error && (
-          <div className="flex items-start gap-3 bg-red-950/40 border border-red-700/40 rounded-xl px-4 py-3">
-            <svg className="w-4 h-4 text-red-400 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 dark:bg-red-950/40 dark:border-red-700/40">
+            <svg className="w-4 h-4 text-red-500 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
             </svg>
-            <p className="text-red-400 text-xs">{error}</p>
+            <p className="text-red-600 dark:text-red-400 text-xs">{error}</p>
           </div>
         )}
 
         {/* Filtres */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 space-y-3 shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-
-          {/* Recherche nom prospect */}
+        <div
+          className="rounded-2xl p-4 space-y-3"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          {/* Recherche nom */}
           <div className="relative">
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#86efac]/30 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-muted)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
             <input
@@ -386,84 +419,59 @@ export default function TableauDeBord() {
               value={filterNom}
               onChange={(e) => setFilterNom(e.target.value)}
               placeholder="Rechercher par nom de prospect…"
-              className="w-full bg-white/5 border border-white/10 focus:border-[#22c55e]/50 focus:ring-1 focus:ring-[#22c55e]/20 text-white placeholder-white/20 rounded-xl pl-10 pr-9 py-2.5 text-sm outline-none transition-all"
+              className="w-full rounded-xl pl-10 pr-9 py-2.5 text-sm outline-none transition-all focus:ring-1 focus:ring-blue-500/30"
+              style={{ ...inputStyle, borderColor: filterNom ? 'var(--accent)' : 'var(--border)' }}
             />
             {filterNom && (
-              <button onClick={() => setFilterNom('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86efac]/30 hover:text-[#86efac]/70 transition-colors">
+              <button onClick={() => setFilterNom('')} className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors" style={{ color: 'var(--text-muted)' }}>
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
               </button>
             )}
           </div>
 
-          {/* Ligne dropdowns + dates */}
+          {/* Dropdowns + dates */}
           <div className="flex flex-wrap gap-2 items-center">
 
-            {/* Source */}
-            <select
-              value={filterSource}
-              onChange={(e) => setFilterSource(e.target.value)}
-              className={`bg-white/5 border rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer appearance-none pr-7 ${filterSource ? 'border-[#22c55e]/60 text-white' : 'border-white/10 text-white/40'} focus:border-[#22c55e]/50`}
-            >
-              <option value="">Toutes les sources</option>
-              {['Appel', 'Facebook', 'WhatsApp', 'Site web', 'Apimo', 'Visite directe', 'Recommandation', 'Autre'].map((v) => (
-                <option key={v} value={v} className="bg-[#0f2318] text-[#f0fdf4]">{v}</option>
-              ))}
-            </select>
+            {[
+              { value: filterSource,  set: setFilterSource,  placeholder: 'Toutes les sources', options: ['Appel','Facebook','WhatsApp','Site web','Apimo','Visite directe','Recommandation','Autre'] },
+              { value: filterMotif,   set: setFilterMotif,   placeholder: 'Tous les motifs',    options: ['Achat','Location','Vente','Syndic','Autre'] },
+              { value: filterUrgence, set: setFilterUrgence, placeholder: 'Toutes urgences',    options: ['Urgent','Normal','Pas pressé'] },
+            ].map(({ value, set, placeholder, options }) => (
+              <select
+                key={placeholder}
+                value={value}
+                onChange={(e) => set(e.target.value)}
+                className="rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer appearance-none pr-7"
+                style={{ ...inputStyle, borderColor: value ? 'var(--accent)' : 'var(--border)' }}
+              >
+                <option value="">{placeholder}</option>
+                {options.map((v) => <option key={v} value={v}>{v}</option>)}
+              </select>
+            ))}
 
-            {/* Motif */}
-            <select
-              value={filterMotif}
-              onChange={(e) => setFilterMotif(e.target.value)}
-              className={`bg-white/5 border rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer appearance-none pr-7 ${filterMotif ? 'border-[#22c55e]/60 text-white' : 'border-white/10 text-white/40'} focus:border-[#22c55e]/50`}
-            >
-              <option value="">Tous les motifs</option>
-              {['Achat', 'Location', 'Vente', 'Syndic', 'Autre'].map((v) => (
-                <option key={v} value={v} className="bg-[#0f2318] text-[#f0fdf4]">{v}</option>
-              ))}
-            </select>
+            <div className="h-5 w-px hidden sm:block" style={{ background: 'var(--border)' }} />
 
-            {/* Urgence */}
-            <select
-              value={filterUrgence}
-              onChange={(e) => setFilterUrgence(e.target.value)}
-              className={`bg-white/5 border rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer appearance-none pr-7 ${filterUrgence ? 'border-[#22c55e]/60 text-white' : 'border-white/10 text-white/40'} focus:border-[#22c55e]/50`}
-            >
-              <option value="">Toutes urgences</option>
-              {['Urgent', 'Normal', 'Pas pressé'].map((v) => (
-                <option key={v} value={v} className="bg-[#0f2318] text-[#f0fdf4]">{v}</option>
-              ))}
-            </select>
+            {[
+              { label: 'Du', value: filterDateDu, set: setFilterDateDu },
+              { label: 'Au', value: filterDateAu, set: setFilterDateAu },
+            ].map(({ label, value, set }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                <input
+                  type="date"
+                  value={value}
+                  onChange={(e) => set(e.target.value)}
+                  className="rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer"
+                  style={{ ...inputStyle, borderColor: value ? 'var(--accent)' : 'var(--border)' }}
+                />
+              </div>
+            ))}
 
-            {/* Séparateur */}
-            <div className="h-5 w-px bg-white/15 hidden sm:block" />
-
-            {/* Date Du */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#86efac]/40 text-xs">Du</span>
-              <input
-                type="date"
-                value={filterDateDu}
-                onChange={(e) => setFilterDateDu(e.target.value)}
-                className={`bg-white/5 border rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer ${filterDateDu ? 'border-[#22c55e]/60 text-white' : 'border-white/10 text-white/30'} focus:border-[#22c55e]/50`}
-              />
-            </div>
-
-            {/* Date Au */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#86efac]/40 text-xs">Au</span>
-              <input
-                type="date"
-                value={filterDateAu}
-                onChange={(e) => setFilterDateAu(e.target.value)}
-                className={`bg-white/5 border rounded-lg px-3 py-2 text-sm outline-none transition-all cursor-pointer ${filterDateAu ? 'border-[#22c55e]/60 text-white' : 'border-white/10 text-white/30'} focus:border-[#22c55e]/50`}
-              />
-            </div>
-
-            {/* Réinitialiser */}
             {hasFilter && (
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-800/40 hover:border-red-600/60 text-red-400/70 hover:text-red-400 text-xs font-medium transition-all ml-auto"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ml-auto"
+                style={{ border: '1px solid var(--destructive)', color: 'var(--destructive)', background: 'transparent' }}
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6L6 18M6 6l12 12"/>
@@ -475,23 +483,31 @@ export default function TableauDeBord() {
         </div>
 
         {/* Tableau */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-
-          <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-            <h2 className="text-[#f0fdf4] text-sm font-semibold">
+        <div
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <div
+            className="px-5 py-4 flex items-center justify-between"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {hasFilter ? 'Résultats' : 'Toutes les fiches'}
               {!loading && (
-                <span className="ml-2 bg-[#166534]/50 text-[#86efac] text-xs px-2 py-0.5 rounded-full font-normal">
+                <span
+                  className="ml-2 text-xs px-2 py-0.5 rounded-full font-normal"
+                  style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}
+                >
                   {hasFilter ? `${filtered.length} / ${total}` : total}
                 </span>
               )}
             </h2>
             <div className="flex items-center gap-3">
-              <span className="text-[#86efac]/30 text-xs hidden sm:block">
+              <span className="text-xs hidden sm:block" style={{ color: 'var(--text-muted)' }}>
                 Cliquer sur une ligne pour voir le d&eacute;tail
               </span>
-              <span className="flex items-center gap-1.5 text-[#22c55e] text-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--success)' }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--success)' }} />
                 Temps r&eacute;el
               </span>
             </div>
@@ -501,7 +517,7 @@ export default function TableauDeBord() {
           {loading && (
             <div className="p-5 space-y-3">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-10 bg-white/5 rounded-lg animate-pulse" />
+                <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: 'var(--border)' }} />
               ))}
             </div>
           )}
@@ -509,24 +525,24 @@ export default function TableauDeBord() {
           {/* vide */}
           {!loading && filtered.length === 0 && !error && (
             <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-              <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                <svg className="w-7 h-7 text-[#22c55e]/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--bg-card-hover)' }}>
+                <svg className="w-7 h-7" style={{ color: 'var(--text-muted)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                 </svg>
               </div>
-              <p className="text-[#86efac]/60 text-sm">Aucune fiche pour le moment</p>
-              <p className="text-[#4ade80]/30 text-xs mt-1">Les nouvelles fiches appara&icirc;tront ici automatiquement</p>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Aucune fiche pour le moment</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Les nouvelles fiches appara&icirc;tront ici automatiquement</p>
             </div>
           )}
 
-          {/* aucun résultat avec filtres actifs */}
+          {/* aucun résultat filtré */}
           {!loading && fiches.length > 0 && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-14 text-center px-4">
-              <svg className="w-8 h-8 text-[#86efac]/20 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-8 h-8 mb-3" style={{ color: 'var(--text-muted)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
-              <p className="text-[#86efac]/50 text-sm">Aucune fiche ne correspond aux filtres</p>
-              <button onClick={resetFilters} className="mt-2 text-[#22c55e] text-xs hover:underline">
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Aucune fiche ne correspond aux filtres</p>
+              <button onClick={resetFilters} className="mt-2 text-xs hover:underline" style={{ color: 'var(--accent)' }}>
                 Réinitialiser les filtres
               </button>
             </div>
@@ -537,11 +553,12 @@ export default function TableauDeBord() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/[0.02]">
+                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-card-hover)' }}>
                     {['Date / Heure', 'Prospect', 'Téléphone', 'Source', 'Motif', 'Urgence', 'Transmettre à'].map((h) => (
                       <th
                         key={h}
-                        className="text-left text-[#86efac]/60 text-xs font-semibold tracking-wider uppercase px-4 py-3 whitespace-nowrap"
+                        className="text-left text-xs font-semibold tracking-wider uppercase px-4 py-3 whitespace-nowrap"
+                        style={{ color: 'var(--text-muted)' }}
                       >
                         {h}
                       </th>
@@ -556,23 +573,24 @@ export default function TableauDeBord() {
                       <tr
                         key={f.id}
                         onClick={() => setSelectedFiche(f)}
-                        className={`hover:bg-white/[0.04] transition-colors cursor-pointer ${!isLast ? 'border-b border-white/[0.06]' : ''}`}
+                        className="transition-colors cursor-pointer hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+                        style={{ borderBottom: !isLast ? '1px solid var(--border)' : undefined }}
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="text-[#f0fdf4] font-medium">{date}</span>
-                          <span className="text-[#86efac]/40 text-xs ml-1.5">{time}</span>
+                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{date}</span>
+                          <span className="text-xs ml-1.5" style={{ color: 'var(--text-muted)' }}>{time}</span>
                         </td>
-                        <td className="px-4 py-3 text-[#f0fdf4] font-medium whitespace-nowrap">
-                          {f.nom_prospect || <span className="text-[#4ade80]/30 italic">Inconnu</span>}
+                        <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>
+                          {f.nom_prospect || <span className="italic" style={{ color: 'var(--text-muted)' }}>Inconnu</span>}
                         </td>
-                        <td className="px-4 py-3 text-[#86efac]/80 whitespace-nowrap font-mono text-xs">
+                        <td className="px-4 py-3 whitespace-nowrap font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
                           {f.telephone || '—'}
                         </td>
-                        <td className="px-4 py-3 text-[#86efac]/70 whitespace-nowrap">{f.source || '—'}</td>
-                        <td className="px-4 py-3 text-[#86efac]/70 whitespace-nowrap">{f.motif  || '—'}</td>
+                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{f.source || '—'}</td>
+                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{f.motif  || '—'}</td>
                         <td className="px-4 py-3"><UrgenceBadge value={f.urgence ?? ''} /></td>
-                        <td className="px-4 py-3 text-[#86efac]/70 whitespace-nowrap">
-                          {f.transmettre_a || <span className="text-[#4ade80]/30">—</span>}
+                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
+                          {f.transmettre_a || <span style={{ color: 'var(--text-muted)' }}>—</span>}
                         </td>
                       </tr>
                     )
@@ -583,12 +601,11 @@ export default function TableauDeBord() {
           )}
         </div>
 
-        <p className="text-center text-[#15803d] text-xs tracking-widest pb-4">
+        <p className="text-center text-xs tracking-widest pb-4" style={{ color: 'var(--text-muted)' }}>
           &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
         </p>
       </main>
 
-      {/* Panneau detail */}
       {selectedFiche && (
         <FicheDetailPanel fiche={selectedFiche} onClose={() => setSelectedFiche(null)} />
       )}
