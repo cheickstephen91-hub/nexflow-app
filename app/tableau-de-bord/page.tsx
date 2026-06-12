@@ -73,12 +73,12 @@ function StatCard({ label, value, icon, accentBg, loading }: {
         {icon}
       </div>
       <div>
-        <p className="text-xs tracking-widest uppercase font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>
+        <p className="tracking-widest uppercase font-medium mb-0.5" style={{ color: '#64748b', fontSize: '0.75rem' }}>
           {label}
         </p>
         {loading
           ? <div className="h-7 w-12 rounded animate-pulse" style={{ background: 'var(--border)' }} />
-          : <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{value}</p>
+          : <p style={{ color: '#1e293b', fontSize: '2rem', fontWeight: 700, lineHeight: 1.1 }}>{value}</p>
         }
       </div>
     </div>
@@ -320,8 +320,8 @@ export default function TableauDeBord() {
         {/* En-tête */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Tableau de bord</h1>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Suivi en temps réel des fiches de qualification</p>
+            <h1 className="text-xl" style={{ color: '#1e293b', fontWeight: 600 }}>Tableau de bord</h1>
+            <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Suivi en temps réel des fiches de qualification</p>
           </div>
           <button
             onClick={() => fetchFiches(userEmail)}
@@ -383,7 +383,7 @@ export default function TableauDeBord() {
         {/* Statistiques */}
         {!loading && fiches.length > 0 && (
           <div>
-            <h2 className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
+            <h2 className="text-[10px] tracking-widest uppercase mb-3" style={{ color: '#64748b', fontWeight: 600 }}>
               Statistiques
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -491,7 +491,7 @@ export default function TableauDeBord() {
             className="px-5 py-4 flex items-center justify-between"
             style={{ borderBottom: '1px solid var(--border)' }}
           >
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-sm" style={{ color: '#1e293b', fontWeight: 600 }}>
               {hasFilter ? 'Résultats' : 'Toutes les fiches'}
               {!loading && (
                 <span

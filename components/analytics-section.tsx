@@ -54,7 +54,7 @@ const SOURCE_COLORS: Record<string, string> = {
   Autre:            '#6b7280',
 }
 
-/* ── Tooltip glassmorphism ── */
+/* ── Tooltip ── */
 
 function GlassTooltip({ active, payload, label }: {
   active?: boolean
@@ -63,10 +63,10 @@ function GlassTooltip({ active, payload, label }: {
 }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#0d1f11]/90 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-2 shadow-xl">
-      {label && <p className="text-white/40 text-[10px] mb-1">{label}</p>}
+    <div className="rounded-xl px-3 py-2 shadow-xl" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+      {label && <p className="text-[10px] mb-1" style={{ color: '#64748b' }}>{label}</p>}
       {payload.map((p, i) => (
-        <p key={i} className="text-white text-xs font-semibold" style={{ color: p.color ?? '#22c55e' }}>
+        <p key={i} className="text-xs font-semibold" style={{ color: p.color ?? '#22c55e' }}>
           {p.value} fiche{p.value > 1 ? 's' : ''}
         </p>
       ))}
@@ -79,8 +79,8 @@ function GlassTooltip({ active, payload, label }: {
 function DonutCenter({ total }: { total: number }) {
   return (
     <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
-      <tspan x="50%" dy="-6" fontSize={22} fontWeight={700} fill="#f0fdf4">{total}</tspan>
-      <tspan x="50%" dy={18} fontSize={10} fill="#86efac99">fiches</tspan>
+      <tspan x="50%" dy="-6" fontSize={22} fontWeight={700} fill="#1e293b">{total}</tspan>
+      <tspan x="50%" dy={18} fontSize={10} fill="#64748b">fiches</tspan>
     </text>
   )
 }
@@ -89,9 +89,9 @@ function DonutCenter({ total }: { total: number }) {
 
 function SkeletonCard({ tall = false }: { tall?: boolean }) {
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-3">
-      <div className="h-3 w-28 bg-white/10 rounded animate-pulse" />
-      <div className={`${tall ? 'h-[200px]' : 'h-[180px]'} bg-white/[0.04] rounded-xl animate-pulse`} />
+    <div className="rounded-2xl p-5 shadow-sm space-y-3" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+      <div className="h-3 w-28 rounded animate-pulse" style={{ background: '#e2e8f0' }} />
+      <div className={`${tall ? 'h-[200px]' : 'h-[180px]'} rounded-xl animate-pulse`} style={{ background: '#f1f5f9' }} />
     </div>
   )
 }
@@ -160,37 +160,39 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
 
       {/* ── Titre section ── */}
       <div className="mb-4">
-        <h2 className="text-[#f0fdf4] text-sm font-semibold">Analytiques</h2>
-        <p className="text-[#4ade80]/40 text-xs mt-0.5">Évolution et répartition sur la période sélectionnée</p>
+        <h2 className="text-sm" style={{ color: '#1e293b', fontWeight: 600 }}>Analytiques</h2>
+        <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Évolution et répartition sur la période sélectionnée</p>
       </div>
 
       {/* ── Contrôles de période ── */}
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 mb-4 shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+      <div className="rounded-2xl p-4 mb-4 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
 
         <div className="flex flex-wrap items-end gap-3">
 
           {/* Du */}
           <div className="flex flex-col gap-1">
-            <label className="text-[#86efac]/40 text-[10px] font-semibold tracking-widest uppercase">Du</label>
+            <label className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: '#64748b' }}>Du</label>
             <input
               type="date"
               value={fromDate}
               max={toDate || isoToday()}
               onChange={(e) => { setFromDate(e.target.value); setActiveShortcut('') }}
-              className="bg-white/5 border border-white/[0.15] text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/20 transition-all cursor-pointer"
+              className="rounded-xl px-3 py-2 text-sm outline-none transition-all cursor-pointer"
+              style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b' }}
             />
           </div>
 
           {/* Au */}
           <div className="flex flex-col gap-1">
-            <label className="text-[#86efac]/40 text-[10px] font-semibold tracking-widest uppercase">Au</label>
+            <label className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: '#64748b' }}>Au</label>
             <input
               type="date"
               value={toDate}
               min={fromDate}
               max={isoToday()}
               onChange={(e) => { setToDate(e.target.value); setActiveShortcut('') }}
-              className="bg-white/5 border border-white/[0.15] text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-[#22c55e]/60 focus:ring-1 focus:ring-[#22c55e]/20 transition-all cursor-pointer"
+              className="rounded-xl px-3 py-2 text-sm outline-none transition-all cursor-pointer"
+              style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b' }}
             />
           </div>
 
@@ -207,7 +209,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
           </button>
 
           {/* Séparateur */}
-          <div className="h-8 w-px bg-white/10 hidden sm:block" />
+          <div className="h-8 w-px hidden sm:block" style={{ background: '#e2e8f0' }} />
 
           {/* Raccourcis */}
           <div className="flex items-center gap-1 flex-wrap">
@@ -215,11 +217,11 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
               <button
                 key={sc.label}
                 onClick={() => applyShortcut(sc)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
-                  activeShortcut === sc.label
-                    ? 'bg-[#22c55e]/15 border border-[#22c55e]/40 text-[#22c55e]'
-                    : 'bg-white/[0.04] border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20'
-                }`}
+                className="px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150"
+                style={activeShortcut === sc.label
+                  ? { background: '#eff6ff', border: '1px solid #bfdbfe', color: '#2563eb' }
+                  : { background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b' }
+                }
               >
                 {sc.label}
               </button>
@@ -228,7 +230,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
 
           {/* Période appliquée */}
           {applied.from && applied.to && (
-            <span className="text-[#86efac]/30 text-xs ml-auto hidden md:block">
+            <span className="text-xs ml-auto hidden md:block" style={{ color: '#94a3b8' }}>
               {fmtDisplayDate(applied.from)} → {fmtDisplayDate(applied.to)}
             </span>
           )}
@@ -264,22 +266,22 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
         {/* ── Graphique 1 : Courbe évolution ── */}
         <div className="lg:col-span-2">
           {loading || !mounted ? <SkeletonCard tall /> : (
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-              <h3 className="text-[#86efac]/60 text-[10px] font-semibold tracking-widest uppercase mb-4">
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <h3 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: '#64748b' }}>
                 Évolution des fiches
               </h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={data?.evolution ?? []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     dataKey="date"
-                    tick={{ fill: 'rgba(134,239,172,0.4)', fontSize: 10 }}
-                    axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickLine={false}
                     interval="preserveStartEnd"
                   />
                   <YAxis
-                    tick={{ fill: 'rgba(134,239,172,0.4)', fontSize: 10 }}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
                     allowDecimals={false}
@@ -302,8 +304,8 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
         {/* ── Graphique 3 : Donut urgence ── */}
         <div>
           {loading || !mounted ? <SkeletonCard /> : (
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-              <h3 className="text-[#86efac]/60 text-[10px] font-semibold tracking-widest uppercase mb-4">
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <h3 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: '#64748b' }}>
                 Par urgence
               </h3>
               <ResponsiveContainer width="100%" height={200}>
@@ -330,9 +332,9 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
                       const p = payload[0]
                       const pct = urgenceTotal ? Math.round(((p.value as number) / urgenceTotal) * 100) : 0
                       return (
-                        <div className="bg-[#0d1f11]/90 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-2 shadow-xl">
-                          <p className="text-white/40 text-[10px] mb-0.5">{p.name as string}</p>
-                          <p className="text-white text-xs font-semibold" style={{ color: (p.payload as { color: string }).color }}>
+                        <div className="rounded-xl px-3 py-2 shadow-xl" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+                          <p className="text-[10px] mb-0.5" style={{ color: '#64748b' }}>{p.name as string}</p>
+                          <p className="text-xs font-semibold" style={{ color: (p.payload as { color: string }).color }}>
                             {p.value as number} fiche{(p.value as number) > 1 ? 's' : ''} · {pct}%
                           </p>
                         </div>
@@ -342,7 +344,7 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
                   <Legend
                     iconType="circle"
                     iconSize={7}
-                    wrapperStyle={{ fontSize: '11px', color: 'rgba(134,239,172,0.6)', paddingTop: '8px' }}
+                    wrapperStyle={{ fontSize: '11px', color: '#64748b', paddingTop: '8px' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -353,18 +355,18 @@ export function AnalyticsSection({ onRangeChange }: AnalyticsSectionProps) {
         {/* ── Graphique 2 : Barres par source ── */}
         <div className="lg:col-span-3">
           {loading || !mounted ? <SkeletonCard /> : (
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-              <h3 className="text-[#86efac]/60 text-[10px] font-semibold tracking-widest uppercase mb-4">
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}>
+              <h3 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: '#64748b' }}>
                 Fiches par source de contact
               </h3>
               {(data?.sources ?? []).length === 0 ? (
-                <p className="text-white/20 text-xs text-center py-12">Aucune donnée sur cette période</p>
+                <p className="text-xs text-center py-12" style={{ color: '#94a3b8' }}>Aucune donnée sur cette période</p>
               ) : (
                 <ResponsiveContainer width="100%" height={180}>
                   <BarChart data={data?.sources ?? []} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} barSize={32}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="source" tick={{ fill: 'rgba(134,239,172,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: 'rgba(134,239,172,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="source" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
                     <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                     <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                       {(data?.sources ?? []).map((entry, i) => (
