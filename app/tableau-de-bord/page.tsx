@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { supabase, type Fiche } from '@/lib/supabase'
-import { NavHeader } from '@/components/nav-header'
+// NavHeader replaced by Sidebar via AppShell
 import { AnalyticsSection } from '@/components/analytics-section'
 
 /* ── helpers ── */
@@ -286,23 +286,20 @@ export default function TableauDeBord() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a1a0f] relative">
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
 
-      {/* Background decorators */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#22c55e]/[0.05] rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
-      </div>
-
-      {/* ── Header ── */}
-      <NavHeader
-        currentPage="tableau-de-bord"
-        maxWidth="max-w-7xl"
-        actions={
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* Refresh button */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Tableau de bord</h1>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Suivi en temps réel des fiches de qualification</p>
+          </div>
           <button
             onClick={() => fetchFiches(userEmail)}
             title="Actualiser"
-            className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/50 hover:text-white transition-all"
+            className="p-2 rounded-lg border transition-all"
+            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -311,17 +308,6 @@ export default function TableauDeBord() {
               <path d="M3 21v-5h5"/>
             </svg>
           </button>
-        }
-      />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-        {/* Titre */}
-        <div>
-          <h1 className="text-[#f0fdf4] text-xl font-bold">Tableau de bord</h1>
-          <p className="text-[#4ade80]/50 text-xs tracking-wide mt-0.5">
-            Suivi en temps r&eacute;el des fiches de qualification
-          </p>
         </div>
 
         {/* Cartes stats */}

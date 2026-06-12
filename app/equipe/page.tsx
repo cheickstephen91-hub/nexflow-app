@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { NavHeader } from '@/components/nav-header'
+// NavHeader replaced by Sidebar via AppShell
 import { supabase } from '@/lib/supabase'
 import { getInvitations, type Invitation } from '@/lib/invitations'
 
@@ -206,8 +206,6 @@ export default function Equipe() {
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[#22c55e]/[0.06] rounded-full blur-3xl" />
         <div className="absolute top-1/2 -right-40 w-[400px] h-[400px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
       </div>
-
-      <NavHeader currentPage="equipe" maxWidth="max-w-5xl" />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 

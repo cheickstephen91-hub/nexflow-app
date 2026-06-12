@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { supabase } from '@/lib/supabase'
 import { getUserProfile, getAgents, fetchAsDataUrl, type Agent } from '@/lib/user-profile'
-import { NavHeader } from '@/components/nav-header'
+// NavHeader replaced by Sidebar via AppShell
 
 type FormData = {
   nom_prospect: string
@@ -530,7 +530,6 @@ export default function NouvelleFiche() {
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#22c55e]/[0.06] rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
       </div>
-      <NavHeader currentPage="nouvelle-fiche" maxWidth="max-w-2xl" />
       <main className="py-10 px-4">
       <div className="max-w-2xl mx-auto">
 

@@ -9,7 +9,7 @@ import {
   getAgents, addAgent, deleteAgent,
   type UserProfile, type Agent,
 } from '@/lib/user-profile'
-import { NavHeader } from '@/components/nav-header'
+// NavHeader replaced by Sidebar via AppShell
 
 /* ── helpers UI ── */
 
@@ -267,9 +267,6 @@ export default function Parametres() {
         <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-[#22c55e]/[0.04] rounded-full blur-3xl" />
         <div className="absolute -bottom-40 right-1/3 w-[400px] h-[400px] bg-[#166534]/[0.05] rounded-full blur-3xl" />
       </div>
-
-      {/* Header */}
-      <NavHeader currentPage="parametres" maxWidth="max-w-3xl" />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <div>
