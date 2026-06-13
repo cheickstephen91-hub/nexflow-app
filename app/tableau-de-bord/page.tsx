@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { supabase, type Fiche } from '@/lib/supabase'
 import { AnalyticsSection } from '@/components/analytics-section'
-import { AppHeader, StatsCard } from '@/components/ui/nexflow'
+import { AppHeader, StatsCard, DataTable, type Column } from '@/components/ui/nexflow'
 
 /* ── helpers date ── */
 
@@ -128,6 +128,71 @@ function StatBarChart({ title, data, barColor }: {
     </div>
   )
 }
+
+/* ── colonnes DataTable v2 ── */
+
+const TABLE_COLUMNS: Column[] = [
+  {
+    key: 'created_at',
+    header: 'Date / Heure',
+    render: (v) => {
+      if (!v) return <span style={{ color: 'var(--muted-foreground)' }}>—</span>
+      const dt = formatDate(String(v))
+      return (
+        <span className="whitespace-nowrap">
+          <span style={{ color: 'var(--foreground)', fontSize: '0.875rem', fontWeight: 500 }}>{dt.date}</span>
+          <span className="ml-1.5" style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem' }}>{dt.time}</span>
+        </span>
+      )
+    },
+  },
+  {
+    key: 'nom_prospect',
+    header: 'Prospect',
+    render: (v) => v
+      ? <span className="whitespace-nowrap" style={{ color: 'var(--foreground)', fontSize: '0.875rem', fontWeight: 500 }}>{String(v)}</span>
+      : <span className="italic whitespace-nowrap" style={{ color: 'var(--muted-foreground)' }}>Inconnu</span>,
+  },
+  {
+    key: 'telephone',
+    header: 'Téléphone',
+    render: (v) => (
+      <span className="whitespace-nowrap font-mono" style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
+        {String(v || '—')}
+      </span>
+    ),
+  },
+  {
+    key: 'source',
+    header: 'Source',
+    render: (v) => (
+      <span className="whitespace-nowrap" style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
+        {String(v || '—')}
+      </span>
+    ),
+  },
+  {
+    key: 'motif',
+    header: 'Motif',
+    render: (v) => (
+      <span className="whitespace-nowrap" style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
+        {String(v || '—')}
+      </span>
+    ),
+  },
+  {
+    key: 'urgence',
+    header: 'Urgence',
+    render: (v) => <UrgenceBadge value={String(v ?? '')} />,
+  },
+  {
+    key: 'transmettre_a',
+    header: 'Transmettre à',
+    render: (v) => v
+      ? <span className="whitespace-nowrap" style={{ color: 'var(--muted-foreground)' }}>{String(v)}</span>
+      : <span style={{ color: 'var(--muted-foreground)', opacity: 0.4 }}>—</span>,
+  },
+]
 
 /* ── panneau détail fiche (slide-over) ── */
 
@@ -305,6 +370,14 @@ export default function TableauDeBord() {
     color: 'var(--foreground)',
   }
 
+  /* ── textes état vide DataTable ── */
+  const emptyTitle = fiches.length === 0 || loading
+    ? 'Aucune fiche pour le moment'
+    : 'Aucune fiche ne correspond aux filtres'
+  const emptyDescription = fiches.length === 0 || loading
+    ? 'Les nouvelles fiches apparaîtront ici automatiquement'
+    : undefined
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -419,7 +492,7 @@ export default function TableauDeBord() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <StatBarChart title="Par source"  data={bySource}  barColor="var(--success)"     />
               <StatBarChart title="Par motif"   data={byMotif}   barColor="var(--primary)"     />
-              <StatBarChart title="Par urgence" data={byUrgence} barColor="#f97316"            />
+              <StatBarChart title="Par urgence" data={byUrgence} barColor="var(--destructive)" />
             </div>
           </div>
         )}
@@ -524,127 +597,40 @@ export default function TableauDeBord() {
           </div>
         </div>
 
-        {/* Tableau des fiches */}
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ background: 'var(--card)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
-        >
-          {/* Header tableau */}
-          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
-              {hasFilter ? 'Résultats' : 'Toutes les fiches'}
-              {!loading && (
-                <span
-                  className="ml-2 text-xs px-2 py-0.5 rounded-full font-normal"
-                  style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}
-                >
-                  {hasFilter ? `${filtered.length} / ${total}` : total}
-                </span>
-              )}
-            </h2>
-            <div className="flex items-center gap-3">
-              <span className="text-xs hidden sm:block" style={{ color: 'var(--muted-foreground)' }}>
-                Cliquer sur une ligne pour voir le d&eacute;tail
+        {/* Barre d'état table : compteur + indicateur temps réel */}
+        <div className="flex items-center justify-between -mb-6">
+          <span className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+            {hasFilter ? 'Résultats' : 'Toutes les fiches'}
+            {!loading && (
+              <span
+                className="ml-2 text-xs px-2 py-0.5 rounded-full font-normal"
+                style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}
+              >
+                {hasFilter ? `${filtered.length} / ${total}` : total}
               </span>
-              <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--success)' }}>
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--success)' }} />
-                Temps r&eacute;el
-              </span>
-            </div>
+            )}
+          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs hidden sm:block" style={{ color: 'var(--muted-foreground)' }}>
+              Cliquer sur une ligne pour voir le d&eacute;tail
+            </span>
+            <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--success)' }}>
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--success)' }} />
+              Temps r&eacute;el
+            </span>
           </div>
-
-          {/* Skeleton */}
-          {loading && (
-            <div className="p-5 space-y-3">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: 'var(--border)' }} />
-              ))}
-            </div>
-          )}
-
-          {/* État vide — aucune fiche */}
-          {!loading && fiches.length === 0 && !error && (
-            <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--secondary)' }}>
-                <svg className="w-7 h-7" style={{ color: 'var(--muted-foreground)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                </svg>
-              </div>
-              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Aucune fiche pour le moment</p>
-              <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)', opacity: 0.7 }}>
-                Les nouvelles fiches appara&icirc;tront ici automatiquement
-              </p>
-            </div>
-          )}
-
-          {/* Aucun résultat après filtrage */}
-          {!loading && fiches.length > 0 && filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-14 text-center px-4">
-              <svg className="w-8 h-8 mb-3" style={{ color: 'var(--muted-foreground)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Aucune fiche ne correspond aux filtres</p>
-              <button onClick={resetFilters} className="mt-2 text-xs hover:underline" style={{ color: 'var(--primary)' }}>
-                Réinitialiser les filtres
-              </button>
-            </div>
-          )}
-
-          {/* Données */}
-          {!loading && filtered.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--secondary)' }}>
-                    {['Date / Heure', 'Prospect', 'Téléphone', 'Source', 'Motif', 'Urgence', 'Transmettre à'].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left uppercase px-4 py-3 whitespace-nowrap"
-                        style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((f, idx) => {
-                    const { date, time } = f.created_at ? formatDate(f.created_at) : { date: '—', time: '—' }
-                    const isLast = idx === filtered.length - 1
-                    return (
-                      <tr
-                        key={f.id}
-                        onClick={() => setSelectedFiche(f)}
-                        className="transition-colors cursor-pointer"
-                        style={{ borderBottom: !isLast ? '1px solid var(--border)' : undefined }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'var(--secondary)' }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = '' }}
-                      >
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span style={{ color: 'var(--foreground)', fontSize: '0.875rem', fontWeight: 500 }}>{date}</span>
-                          <span className="ml-1.5" style={{ color: 'var(--muted-foreground)', fontSize: '0.75rem' }}>{time}</span>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--foreground)', fontSize: '0.875rem', fontWeight: 500 }}>
-                          {f.nom_prospect || <span className="italic" style={{ color: 'var(--muted-foreground)' }}>Inconnu</span>}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap font-mono" style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-                          {f.telephone || '—'}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>{f.source || '—'}</td>
-                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>{f.motif  || '—'}</td>
-                        <td className="px-4 py-3"><UrgenceBadge value={f.urgence ?? ''} /></td>
-                        <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--muted-foreground)' }}>
-                          {f.transmettre_a || <span style={{ opacity: 0.4 }}>—</span>}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
+
+        {/* Table des fiches — DataTable v2 */}
+        <DataTable
+          columns={TABLE_COLUMNS}
+          data={filtered as Record<string, unknown>[]}
+          loading={loading}
+          emptyTitle={emptyTitle}
+          emptyDescription={emptyDescription}
+          caption="Liste des fiches de qualification"
+          onRowClick={(row) => setSelectedFiche(row as unknown as Fiche)}
+        />
 
         <p className="text-center text-xs tracking-widest pb-4" style={{ color: 'var(--muted-foreground)' }}>
           &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
