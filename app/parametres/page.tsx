@@ -9,7 +9,7 @@ import {
   getAgents, addAgent, deleteAgent,
   type UserProfile, type Agent,
 } from '@/lib/user-profile'
-// NavHeader replaced by Sidebar via AppShell
+import { AppHeader } from '@/components/ui/nexflow'
 
 /* ── Données services / zones ── */
 
@@ -37,16 +37,16 @@ function SectionCard({ id, title, icon, children }: {
       id={id}
       className="rounded-2xl p-6 scroll-mt-20"
       style={{
-        background: 'var(--bg-card)',
+        background: 'var(--card)',
         border: '1px solid var(--border)',
         boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
       }}
     >
       <div className="flex items-center gap-3 mb-5 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
           {icon}
         </div>
-        <h2 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>{title}</h2>
+        <h2 className="font-semibold text-base" style={{ color: 'var(--foreground)' }}>{title}</h2>
       </div>
       {children}
     </div>
@@ -55,7 +55,7 @@ function SectionCard({ id, title, icon, children }: {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+    <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5" style={{ color: 'var(--muted-foreground)' }}>
       {children}
     </label>
   )
@@ -69,9 +69,9 @@ function TextInput({ value, onChange, placeholder }: { value: string; onChange: 
       placeholder={placeholder}
       className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
       style={{
-        background: 'var(--bg-primary)',
+        background: 'var(--background)',
         border: '1px solid var(--border)',
-        color: 'var(--text-primary)',
+        color: 'var(--foreground)',
       }}
     />
   )
@@ -83,7 +83,7 @@ function SaveButton({ onClick, loading, label = 'Enregistrer' }: { onClick: () =
       onClick={onClick}
       disabled={loading}
       className="flex items-center gap-2 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-      style={{ background: '#2563eb', color: '#ffffff' }}
+      style={{ background: 'var(--primary)', color: 'var(--primary-foreground)' }}
     >
       {loading ? (
         <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -300,14 +300,14 @@ export default function Parametres() {
 
   if (status === 'loading' || loadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen relative" style={{ background: 'var(--bg-primary)' }}>
+    <div className="min-h-screen relative" style={{ background: 'var(--background)' }}>
 
       {/* Background decorators */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -317,10 +317,7 @@ export default function Parametres() {
       </div>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <div>
-          <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Param&egrave;tres</h1>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Gestion des int&eacute;grations et pr&eacute;f&eacute;rences</p>
-        </div>
+        <AppHeader title="Paramètres" subtitle="Gestion des intégrations et préférences" />
 
         {successMsg && <SuccessBanner msg={successMsg} onClose={() => setSuccessMsg(null)} />}
         {errorMsg && <ErrorBanner msg={errorMsg} onClose={() => setErrorMsg(null)} />}
@@ -334,21 +331,21 @@ export default function Parametres() {
               <div
                 onClick={() => fileInputRef.current?.click()}
                 className="w-24 h-24 rounded-2xl border-2 border-dashed flex items-center justify-center cursor-pointer transition-all overflow-hidden"
-                style={{ borderColor: 'var(--border)', background: 'var(--bg-card-hover)' }}
+                style={{ borderColor: 'var(--border)', background: 'var(--secondary)' }}
               >
                 {logoPreview ? (
                   <img src={logoPreview} alt="Logo" className="w-full h-full object-contain p-1" />
                 ) : (
                   <div className="text-center p-2">
-                    <svg className="w-7 h-7 mx-auto mb-1" style={{ color: 'var(--accent)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="w-7 h-7 mx-auto mb-1" style={{ color: 'var(--primary)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    <p className="text-[9px] leading-tight" style={{ color: 'var(--text-muted)' }}>Cliquer pour<br/>uploader</p>
+                    <p className="text-[9px] leading-tight" style={{ color: 'var(--muted-foreground)' }}>Cliquer pour<br/>uploader</p>
                   </div>
                 )}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
-              <p className="text-[10px] text-center mt-1" style={{ color: 'var(--text-muted)' }}>JPG, PNG, SVG</p>
+              <p className="text-[10px] text-center mt-1" style={{ color: 'var(--muted-foreground)' }}>JPG, PNG, SVG</p>
             </div>
 
             <div className="flex-1">
@@ -358,7 +355,7 @@ export default function Parametres() {
                 onChange={(v) => setProfile((p) => ({ ...p, nom_entreprise: v }))}
                 placeholder="Ex : Agence Nexflow"
               />
-              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Ce nom appara&icirc;tra dans tous les PDF g&eacute;n&eacute;r&eacute;s.</p>
+              <p className="text-xs mt-2" style={{ color: 'var(--muted-foreground)' }}>Ce nom appara&icirc;tra dans tous les PDF g&eacute;n&eacute;r&eacute;s.</p>
             </div>
           </div>
 
@@ -370,7 +367,7 @@ export default function Parametres() {
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
         }>
           <div className="space-y-4 mb-5">
-            <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Profil Directeur</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--muted-foreground)' }}>Profil Directeur</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <FieldLabel>Prénom</FieldLabel>
@@ -382,7 +379,7 @@ export default function Parametres() {
               </div>
             </div>
 
-            <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--text-muted)' }}>Agence</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--muted-foreground)' }}>Agence</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <FieldLabel>Adresse</FieldLabel>
@@ -414,7 +411,7 @@ export default function Parametres() {
               </div>
             </div>
 
-            <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--text-muted)' }}>Services &amp; Zones</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase pt-2" style={{ color: 'var(--muted-foreground)' }}>Services &amp; Zones</p>
             <div className="space-y-4">
               <div>
                 <FieldLabel>Services proposés</FieldLabel>
@@ -428,9 +425,9 @@ export default function Parametres() {
                         onClick={() => toggleService(s.id)}
                         className="flex items-center gap-2.5 py-3 px-4 rounded-xl text-left transition-all duration-150"
                         style={{
-                          border: active ? '2px solid #2563eb' : '1px solid var(--border)',
-                          background: active ? '#eff6ff' : 'var(--bg-primary)',
-                          color: active ? '#2563eb' : 'var(--text-secondary)',
+                          border: active ? '2px solid var(--primary)' : '1px solid var(--border)',
+                          background: active ? 'color-mix(in srgb, var(--primary) 10%, transparent)' : 'var(--background)',
+                          color: active ? 'var(--primary)' : 'var(--muted-foreground)',
                         }}
                       >
                         <span className="text-lg shrink-0">{s.icon}</span>
@@ -458,9 +455,9 @@ export default function Parametres() {
                         onClick={() => toggleZone(z)}
                         className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                         style={{
-                          border: active ? '1px solid #2563eb' : '1px solid var(--border)',
-                          background: active ? '#eff6ff' : 'transparent',
-                          color: active ? '#2563eb' : 'var(--text-secondary)',
+                          border: active ? '1px solid var(--primary)' : '1px solid var(--border)',
+                          background: active ? 'color-mix(in srgb, var(--primary) 10%, transparent)' : 'transparent',
+                          color: active ? 'var(--primary)' : 'var(--muted-foreground)',
                         }}
                       >
                         {z}
@@ -469,7 +466,7 @@ export default function Parametres() {
                   })}
                 </div>
                 {selectedZones.length > 0 && (
-                  <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
+                  <p className="text-[10px] mt-1.5" style={{ color: 'var(--muted-foreground)' }}>
                     {selectedZones.length} commune{selectedZones.length > 1 ? 's' : ''} sélectionnée{selectedZones.length > 1 ? 's' : ''}
                   </p>
                 )}
@@ -489,14 +486,14 @@ export default function Parametres() {
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         }>
           {agents.length === 0 ? (
-            <p className="text-sm text-center py-4" style={{ color: 'var(--text-muted)' }}>Aucun agent ajout&eacute; pour le moment.</p>
+            <p className="text-sm text-center py-4" style={{ color: 'var(--muted-foreground)' }}>Aucun agent ajout&eacute; pour le moment.</p>
           ) : (
             <div className="space-y-2 mb-4">
               {agents.map((a) => (
-                <div key={a.id} className="flex items-center justify-between rounded-xl px-4 py-2.5" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)' }}>
+                <div key={a.id} className="flex items-center justify-between rounded-xl px-4 py-2.5" style={{ background: 'var(--secondary)', border: '1px solid var(--border)' }}>
                   <div>
-                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{a.nom}</p>
-                    {a.role && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{a.role}</p>}
+                    <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{a.nom}</p>
+                    {a.role && <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{a.role}</p>}
                   </div>
                   <button
                     onClick={() => a.id && handleDeleteAgent(a.id)}
@@ -515,28 +512,28 @@ export default function Parametres() {
           )}
 
           <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-secondary)' }}>Ajouter un agent</p>
+            <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--muted-foreground)' }}>Ajouter un agent</p>
             <div className="flex gap-2 mb-2">
               <input
                 value={newAgentNom}
                 onChange={(e) => setNewAgentNom(e.target.value)}
                 placeholder="Nom de l'agent"
                 className="flex-1 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
-                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                style={{ background: 'var(--background)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
               />
               <input
                 value={newAgentRole}
                 onChange={(e) => setNewAgentRole(e.target.value)}
                 placeholder="Rôle (optionnel)"
                 className="flex-1 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
-                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                style={{ background: 'var(--background)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
               />
             </div>
             <button
               onClick={handleAddAgent}
               disabled={!newAgentNom.trim() || addingAgent}
               className="flex items-center gap-2 font-semibold text-sm py-2.5 px-5 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ border: '1px solid var(--accent)', color: 'var(--accent)', background: 'var(--accent-light)' }}
+              style={{ border: '1px solid var(--primary)', color: 'var(--primary)', background: 'color-mix(in srgb, var(--primary) 12%, transparent)' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               {addingAgent ? 'Ajout...' : 'Ajouter'}
@@ -552,14 +549,14 @@ export default function Parametres() {
           <div className="mb-4 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)' }}>
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Nexflow Cloud</p>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Stockage sécurisé par défaut</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Nexflow Cloud</p>
+                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Stockage sécurisé par défaut</p>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
@@ -567,7 +564,7 @@ export default function Parametres() {
                 <span className="text-xs font-semibold" style={{ color: 'var(--success)' }}>Actif par défaut</span>
               </div>
             </div>
-            <p className="text-xs mt-2.5 pl-11" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-xs mt-2.5 pl-11" style={{ color: 'var(--muted-foreground)' }}>
               Vos fiches sont automatiquement sauvegardées dans la base de données Nexflow (Supabase). Ce stockage est inclus et ne peut pas être désactivé.
             </p>
           </div>
@@ -577,15 +574,15 @@ export default function Parametres() {
             <div className="flex items-center gap-3 mb-3">
               <svg viewBox="0 0 87.3 78" className="w-5 h-5 shrink-0"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L28.1 52H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="M43.65 25L29.35 0c-1.35.8-2.5 1.9-3.3 3.3L1.2 47.5C.4 48.9 0 50.45 0 52h28.1z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.2l5.9 11.75z" fill="#ea4335"/><path d="M43.65 25L57.95 0H29.35z" fill="#00832d"/><path d="M59.2 52h28.1L73.55 28.5 57.95 0 43.65 25z" fill="#2684fc"/><path d="M28.1 52l-14.3 24.8c1.35.8 2.9 1.2 4.5 1.2h50.7c1.6 0 3.15-.45 4.5-1.2L59.2 52z" fill="#ffba00"/></svg>
               <div>
-                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Google Drive</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Dossier : &ldquo;Nexflow - Fiches Qualification&rdquo;</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Google Drive</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Dossier : &ldquo;Nexflow - Fiches Qualification&rdquo;</p>
               </div>
             </div>
             {session?.access_token ? (
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs" style={{ background: 'var(--accent-light)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                <div className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs" style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', border: '1px solid rgba(34,197,94,0.2)' }}>
                   {session.user?.image && <img src={session.user.image} alt="" className="w-5 h-5 rounded-full"/>}
-                  <span style={{ color: 'var(--text-secondary)' }}>{session.user?.email}</span>
+                  <span style={{ color: 'var(--muted-foreground)' }}>{session.user?.email}</span>
                   <span className="flex items-center gap-1" style={{ color: 'var(--success)' }}>
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--success)' }}/>
                     Connect&eacute;
@@ -615,11 +612,11 @@ export default function Parametres() {
             <div className="flex items-center gap-3">
               <svg viewBox="0 0 96 96" className="w-5 h-5 shrink-0"><defs><linearGradient id="od2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#0364b8"/><stop offset="100%" stopColor="#0078d4"/></linearGradient></defs><path d="M57.9 26.2A22.06 22.06 0 0 0 37.1 14a22.07 22.07 0 0 0-20.6 14.2A18 18 0 0 0 18 64h38.6l1.2-.7A18 18 0 0 0 57.9 26.2z" fill="#0364b8"/><path d="M62.9 32.2a18 18 0 0 0-2.7.2 22.1 22.1 0 0 1 4.5 14.7A18 18 0 0 1 54 63.4l-.6.6H78a18 18 0 0 0 0-36 17.93 17.93 0 0 0-15.1 4.2z" fill="url(#od2)"/></svg>
               <div>
-                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>OneDrive</p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Int&eacute;gration Microsoft</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>OneDrive</p>
+                <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Int&eacute;gration Microsoft</p>
               </div>
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>Bientôt disponible</span>
+            <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'var(--secondary)', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }}>Bientôt disponible</span>
           </div>
         </SectionCard>
 
@@ -634,7 +631,7 @@ export default function Parametres() {
                 value={profile.rapport_frequence ?? 'Désactivé'}
                 onChange={(e) => setProfile((p) => ({ ...p, rapport_frequence: e.target.value }))}
                 className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all appearance-none"
-                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                style={{ background: 'var(--background)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
               >
                 {['Désactivé', 'Quotidien', 'Hebdomadaire'].map((o) => (
                   <option key={o} value={o}>{o}</option>
@@ -658,13 +655,13 @@ export default function Parametres() {
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         }>
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-3 rounded-xl px-4 py-3 flex-1 min-w-0" style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)' }}>
+            <div className="flex items-center gap-3 rounded-xl px-4 py-3 flex-1 min-w-0" style={{ background: 'var(--secondary)', border: '1px solid var(--border)' }}>
               {session?.user?.image && (
                 <img src={session.user.image} alt="" className="w-8 h-8 rounded-full shrink-0"/>
               )}
               <div className="min-w-0">
-                <p className="text-[10px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>Compte connect&eacute;</p>
-                <p className="text-sm truncate" style={{ color: 'var(--text-primary)' }}>{email}</p>
+                <p className="text-[10px] tracking-widest uppercase" style={{ color: 'var(--muted-foreground)' }}>Compte connect&eacute;</p>
+                <p className="text-sm truncate" style={{ color: 'var(--foreground)' }}>{email}</p>
               </div>
             </div>
             <button
@@ -680,7 +677,7 @@ export default function Parametres() {
           </div>
         </SectionCard>
 
-        <p className="text-center text-xs tracking-widest pb-4" style={{ color: 'var(--text-muted)' }}>
+        <p className="text-center text-xs tracking-widest pb-4" style={{ color: 'var(--muted-foreground)' }}>
           &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
         </p>
       </main>
