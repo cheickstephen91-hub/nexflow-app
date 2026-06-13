@@ -31,19 +31,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      {/* Inline script: apply saved theme before first paint (no flash) */}
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var t = localStorage.getItem('nexflow-theme');
-                if (t === 'dark') document.documentElement.classList.add('dark');
-              } catch(e) {}
-            `,
-          }}
-        />
-      </head>
       <body className="min-h-full flex flex-col">
         <Providers>
           <AppShell>

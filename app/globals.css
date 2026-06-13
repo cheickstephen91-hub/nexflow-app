@@ -1,73 +1,174 @@
 @import "tailwindcss";
 
-/* ── Dark mode via .dark class on <html> ── */
+/* ── Dark mode via .dark class on <html> (next-themes) ── */
 @variant dark (&:where(.dark, .dark *));
 
-/* ── Light theme (default) ── */
+/* ════════════════════════════════════════════════════════
+   NEXFLOW v2 — Design System
+   Tokens sémantiques + aliases backward-compat
+   Light = fond bleu-lavande / cartes blanches / accent bleu
+   Dark  = fond bleu-nuit profond / cartes sombres / accent bleu
+════════════════════════════════════════════════════════ */
+
+/* ── Light theme (défaut) ── */
 :root {
-  --bg-primary:    #f8fafc;
-  --bg-card:       #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --border:        #e2e8f0;
-  --text-primary:  #1f2937;
-  --text-secondary:#6b7280;
-  --text-muted:    #9ca3af;
-  --accent:        #2563eb;
-  --accent-hover:  #1d4ed8;
-  --accent-light:  #eff6ff;
-  --sidebar-bg:    #1e3a5f;
-  --sidebar-item-active: #2563eb;
-  --destructive:   #ef4444;
-  --success:       #22c55e;
+  /* ─ Tokens sémantiques v2 ─ */
+  --background:             #eef2ff;
+  --foreground:             #1e293b;
+
+  --card:                   #ffffff;
+  --card-foreground:        #1e293b;
+
+  --popover:                #ffffff;
+  --popover-foreground:     #1e293b;
+
+  --primary:                #2563eb;
+  --primary-foreground:     #ffffff;
+  --primary-hover:          #1d4ed8;
+
+  --secondary:              #f1f5f9;
+  --secondary-foreground:   #475569;
+
+  --muted:                  #f8fafc;
+  --muted-foreground:       #94a3b8;
+
+  --accent:                 #eff6ff;
+  --accent-foreground:      #2563eb;
+
+  --destructive:            #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border:                 #e5e7eb;
+  --input:                  #ffffff;
+  --input-border:           #d1d5db;
+  --ring:                   #2563eb;
+
+  /* ─ Tokens application ─ */
+  --success:                #22c55e;
+  --success-foreground:     #ffffff;
+  --warning:                #f59e0b;
+  --warning-foreground:     #ffffff;
+
+  --sidebar:                #0f1d35;
+  --sidebar-foreground:     #ffffff;
+  --sidebar-muted:          rgba(255,255,255,0.45);
+  --sidebar-active:         #2563eb;
+  --sidebar-active-bg:      rgba(255,255,255,0.12);
+  --sidebar-hover:          rgba(255,255,255,0.08);
+
+  --radius:                 0.75rem;
+  --radius-sm:              0.5rem;
+  --radius-lg:              1rem;
+  --radius-xl:              1.5rem;
+  --radius-pill:            9999px;
+
+  --shadow-card:            0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card-hover:      0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-modal:           0 8px 40px rgba(0,0,0,0.12);
+  --shadow-sidebar:         4px 0 24px rgba(0,0,0,0.15);
+
+  /* ─ Backward compatibility (v1 → v2) ─ */
+  --bg-primary:             var(--background);
+  --bg-card:                var(--card);
+  --bg-card-hover:          var(--secondary);
+  --text-primary:           var(--foreground);
+  --text-secondary:         var(--secondary-foreground);
+  --text-muted:             var(--muted-foreground);
+  --accent-hover:           var(--primary-hover);
+  --accent-light:           var(--accent);
+  --sidebar-bg:             var(--sidebar);
+  --sidebar-item-active:    var(--sidebar-active);
 }
 
 /* ── Dark theme ── */
 html.dark {
-  --bg-primary:    #0a1a0f;
-  --bg-card:       rgba(255,255,255,0.05);
-  --bg-card-hover: rgba(255,255,255,0.08);
-  --border:        rgba(255,255,255,0.10);
-  --text-primary:  #f0fdf4;
-  --text-secondary:#86efac;
-  --text-muted:    rgba(134,239,172,0.4);
-  --accent:        #22c55e;
-  --accent-hover:  #16a34a;
-  --accent-light:  rgba(34,197,94,0.1);
-  --sidebar-bg:    #0d2318;
-  --sidebar-item-active: #22c55e;
-  --destructive:   #f87171;
-  --success:       #22c55e;
+  /* ─ Tokens sémantiques v2 (dark) ─ */
+  --background:             #080f1e;
+  --foreground:             #e2e8f0;
+
+  --card:                   #0d1829;
+  --card-foreground:        #e2e8f0;
+
+  --popover:                #0d1829;
+  --popover-foreground:     #e2e8f0;
+
+  --primary:                #3b82f6;
+  --primary-foreground:     #ffffff;
+  --primary-hover:          #2563eb;
+
+  --secondary:              #162035;
+  --secondary-foreground:   #94a3b8;
+
+  --muted:                  #0f1d35;
+  --muted-foreground:       #64748b;
+
+  --accent:                 rgba(59,130,246,0.12);
+  --accent-foreground:      #93c5fd;
+
+  --destructive:            #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border:                 rgba(255,255,255,0.08);
+  --input:                  #0d1829;
+  --input-border:           rgba(255,255,255,0.12);
+  --ring:                   #3b82f6;
+
+  /* ─ Tokens application (dark) ─ */
+  --success:                #22c55e;
+  --success-foreground:     #ffffff;
+  --warning:                #f59e0b;
+  --warning-foreground:     #ffffff;
+
+  --sidebar:                #060c18;
+  --sidebar-foreground:     #e2e8f0;
+  --sidebar-muted:          rgba(255,255,255,0.35);
+  --sidebar-active:         #2563eb;
+  --sidebar-active-bg:      rgba(59,130,246,0.15);
+  --sidebar-hover:          rgba(255,255,255,0.06);
+
+  --shadow-card:            0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-card-hover:      0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-modal:           0 8px 40px rgba(0,0,0,0.5);
+  --shadow-sidebar:         4px 0 24px rgba(0,0,0,0.5);
+
+  /* ─ Backward compat hérite automatiquement des valeurs dark ci-dessus ─ */
 }
 
-/* ── Base ── */
+/* ════════════════════════════════════════════════════════
+   BASE
+════════════════════════════════════════════════════════ */
+
 html {
   height: 100%;
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans, system-ui, Arial, sans-serif);
   min-height: 100%;
-  transition: background-color 300ms ease, color 300ms ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Smooth transitions on theme change ── */
+/* ── Transitions thème (exclure les animations internes) ── */
 *,
 *::before,
 *::after {
-  transition-property: background-color, border-color, color, box-shadow;
+  transition-property: background-color, border-color, color, box-shadow, opacity;
   transition-duration: 200ms;
   transition-timing-function: ease;
 }
 
-/* ── Disable transitions on explicit no-transition elements ── */
 .no-transition,
 .no-transition * {
   transition: none !important;
 }
 
-/* ── Sidebar slide-in animation ── */
+/* ════════════════════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════════════════════ */
+
 @keyframes sidebar-item-in {
   from { opacity: 0; transform: translateX(-8px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -77,18 +178,65 @@ body {
   animation: sidebar-item-in 250ms ease forwards;
 }
 
-/* ── Card hover lift ── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fade-in 300ms ease forwards;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ════════════════════════════════════════════════════════
+   CARD HOVER LIFT
+════════════════════════════════════════════════════════ */
+
 .card-hover {
   transition: transform 200ms ease, box-shadow 200ms ease !important;
 }
 .card-hover:hover {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
 }
 
-/* ── Scrollbar (light) ── */
+/* ════════════════════════════════════════════════════════
+   SCROLLBAR
+════════════════════════════════════════════════════════ */
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+html.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
 
-/* ── Scrollbar (dark) ── */
-html.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+/* ════════════════════════════════════════════════════════
+   FORM ELEMENTS — reset cohérent
+════════════════════════════════════════════════════════ */
+
+input, select, textarea {
+  background: var(--input);
+  color: var(--foreground);
+  border-color: var(--input-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
+select option {
+  background: var(--card);
+  color: var(--foreground);
+}
+
+/* ════════════════════════════════════════════════════════
+   FOCUS RING
+════════════════════════════════════════════════════════ */
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

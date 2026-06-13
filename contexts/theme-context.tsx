@@ -1,58 +1,21 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+/**
+ * Thin wrapper over next-themes.
+ * Tous les composants qui importent useTheme / ThemeProvider depuis ici
+ * continuent de fonctionner sans modification.
+ */
 
-type Theme = 'light' | 'dark'
-
-interface ThemeContextValue {
-  theme: Theme
-  toggleTheme: () => void
-  isDark: boolean
-}
-
-const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'light',
-  toggleTheme: () => {},
-  isDark: false,
-})
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    const stored = localStorage.getItem('nexflow-theme') as Theme | null
-    const initial = stored ?? 'light'
-    setTheme(initial)
-    applyTheme(initial)
-    setMounted(true)
-  }, [])
-
-  function applyTheme(t: Theme) {
-    const root = document.documentElement
-    if (t === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-  }
-
-  function toggleTheme() {
-    const next: Theme = theme === 'light' ? 'dark' : 'light'
-    setTheme(next)
-    applyTheme(next)
-    localStorage.setItem('nexflow-theme', next)
-  }
-
-  if (!mounted) return null
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
-      {children}
-    </ThemeContext.Provider>
-  )
-}
+import { useTheme as useNextTheme } from 'next-themes'
 
 export function useTheme() {
-  return useContext(ThemeContext)
+  const { resolvedTheme, setTheme } = useNextTheme()
+  const isDark = resolvedTheme === 'dark'
+  return {
+    isDark,
+    theme: (resolvedTheme ?? 'light') as 'light' | 'dark',
+    toggleTheme: () => setTheme(isDark ? 'light' : 'dark'),
+  }
 }
+
+export { ThemeProvider } from 'next-themes'
