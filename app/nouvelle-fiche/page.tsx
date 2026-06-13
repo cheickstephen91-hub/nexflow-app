@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { supabase } from '@/lib/supabase'
 import { getUserProfile, getAgents, fetchAsDataUrl, type Agent } from '@/lib/user-profile'
-// NavHeader replaced by Sidebar via AppShell
+import { PageContainer, FormSection, FormCard } from '@/components/ui/nexflow'
 
 type FormData = {
   nom_prospect: string
@@ -204,43 +204,88 @@ async function generatePDF(
   return { pdfBase64, filename }
 }
 
-/* ── petits composants ── */
+/* ── icônes inline ── */
+
+const IcoUser = (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+)
+
+const IcoPhone = (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.13 6.13l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+  </svg>
+)
+
+const IcoBudget = (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2"/>
+    <line x1="2" y1="10" x2="22" y2="10"/>
+  </svg>
+)
+
+const IcoForward = (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 17 20 12 15 7"/>
+    <path d="M4 18v-2a4 4 0 0 1 4-4h12"/>
+  </svg>
+)
+
+/* ── composants de formulaire v2 ── */
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+    <label className="block text-xs font-semibold tracking-widest uppercase mb-1.5"
+      style={{ color: 'var(--muted-foreground)' }}>
       {children}
     </label>
   )
 }
 
-function Input({
-  name, value, onChange, placeholder, type = 'text',
+function InputField({
+  name, value, onChange, placeholder, type = 'text', trailingIcon,
 }: {
   name: keyof FormData
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   type?: string
+  trailingIcon?: React.ReactNode
 }) {
+  const [focused, setFocused] = useState(false)
   return (
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-all"
-      style={{
-        background: 'var(--bg-primary)',
-        border: '1px solid var(--border)',
-        color: 'var(--text-primary)',
-      }}
-    />
+    <div className="relative">
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        placeholder={placeholder}
+        className={`w-full rounded-xl px-4 py-3 text-sm outline-none transition-all${trailingIcon ? ' pr-10' : ''}`}
+        style={{
+          background: 'var(--input)',
+          border: `1px solid ${focused ? 'var(--ring)' : 'var(--input-border)'}`,
+          color: 'var(--foreground)',
+          boxShadow: focused ? '0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent)' : 'none',
+        }}
+      />
+      {trailingIcon && (
+        <span
+          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+          style={{ color: focused ? 'var(--primary)' : 'var(--muted-foreground)' }}
+        >
+          {trailingIcon}
+        </span>
+      )}
+    </div>
   )
 }
 
-function Select({
+function SelectField({
   name, value, onChange, options,
 }: {
   name: keyof FormData
@@ -248,27 +293,35 @@ function Select({
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
   options: string[]
 }) {
+  const [focused, setFocused] = useState(false)
   return (
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-all appearance-none cursor-pointer"
-      style={{
-        background: 'var(--bg-primary)',
-        border: '1px solid var(--border)',
-        color: 'var(--text-primary)',
-      }}
-    >
-      <option value="" disabled>
-        Sélectionner…
-      </option>
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
+    <div className="relative">
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        className="w-full rounded-xl px-4 py-3 pr-9 text-sm outline-none transition-all appearance-none cursor-pointer"
+        style={{
+          background: 'var(--input)',
+          border: `1px solid ${focused ? 'var(--ring)' : 'var(--input-border)'}`,
+          color: value ? 'var(--foreground)' : 'var(--muted-foreground)',
+          boxShadow: focused ? '0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent)' : 'none',
+        }}
+      >
+        <option value="" disabled>Sélectionner…</option>
+        {options.map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+      <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+        style={{ color: 'var(--muted-foreground)' }}>
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </span>
+    </div>
   )
 }
 
@@ -398,305 +451,390 @@ export default function NouvelleFiche() {
   /* ── écran de confirmation ── */
   if (success) {
     return (
-      <main className="min-h-screen relative flex flex-col items-center justify-center px-4" style={{ background: 'var(--bg-primary)' }}>
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-[400px] h-[400px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.07)' }} />
-          <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.05)' }} />
+      <PageContainer maxWidth="sm">
+        {/* Blobs décoratifs */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-32 -left-32 w-[400px] h-[400px] rounded-full blur-3xl"
+            style={{ background: 'color-mix(in srgb, var(--success) 7%, transparent)' }} />
+          <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] rounded-full blur-3xl"
+            style={{ background: 'color-mix(in srgb, var(--success) 5%, transparent)' }} />
         </div>
-        <div className="relative z-10 rounded-2xl p-10 max-w-md w-full text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
 
-          <div className="mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'var(--accent-light)', border: '1px solid var(--accent)' }}>
-            <svg className="w-8 h-8" style={{ color: 'var(--accent)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-          </div>
+        <div className="relative z-10 flex items-center justify-center" style={{ minHeight: 'calc(100vh - 4rem)' }}>
+          <FormCard maxWidth={440}>
+            <div className="text-center">
+              {/* Icône succès */}
+              <div className="mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center"
+                style={{
+                  background: 'color-mix(in srgb, var(--success) 12%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)',
+                }}>
+                <svg className="w-8 h-8" style={{ color: 'var(--success)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </div>
 
-          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Fiche enregistr&eacute;e !</h2>
-          <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Le prospect{' '}
-            <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{savedForm.nom_prospect || 'Inconnu'}</span>{' '}
-            a bien &eacute;t&eacute; ajout&eacute;.
-          </p>
+              <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
+                Fiche enregistr&eacute;e&nbsp;!
+              </h2>
+              <p className="text-sm mb-1" style={{ color: 'var(--muted-foreground)' }}>
+                Le prospect{' '}
+                <span className="font-semibold" style={{ color: 'var(--foreground)' }}>
+                  {savedForm.nom_prospect || 'Inconnu'}
+                </span>{' '}
+                a bien &eacute;t&eacute; ajout&eacute;.
+              </p>
 
-          {driveStatus === 'uploading' && (
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-3 mb-2" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)' }}>
-              <svg className="w-3.5 h-3.5 animate-spin text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
-              </svg>
-              <span className="text-blue-400 text-xs font-medium">Envoi vers Google Drive&hellip;</span>
-            </div>
-          )}
-          {driveStatus === 'ok' && (
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-3 mb-2" style={{ background: 'var(--accent-light)', border: '1px solid rgba(34,197,94,0.3)' }}>
-              <svg viewBox="0 0 87.3 78" className="w-3.5 h-3.5"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L28.1 52H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="M43.65 25L29.35 0c-1.35.8-2.5 1.9-3.3 3.3L1.2 47.5C.4 48.9 0 50.45 0 52h28.1z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.2l5.9 11.75z" fill="#ea4335"/><path d="M43.65 25L57.95 0H29.35z" fill="#00832d"/><path d="M59.2 52h28.1L73.55 28.5 57.95 0 43.65 25z" fill="#2684fc"/><path d="M28.1 52l-14.3 24.8c1.35.8 2.9 1.2 4.5 1.2h50.7c1.6 0 3.15-.45 4.5-1.2L59.2 52z" fill="#ffba00"/></svg>
-              {driveLink ? (
-                <a href={driveLink} target="_blank" rel="noopener noreferrer" className="text-xs font-medium hover:underline" style={{ color: 'var(--accent)' }}>
-                  Copie enregistr&eacute;e sur Google Drive &rarr;
-                </a>
-              ) : (
-                <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>Copie enregistr&eacute;e sur Google Drive</span>
+              {/* Statut Drive */}
+              {driveStatus === 'uploading' && (
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-3 mb-2"
+                  style={{
+                    background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)',
+                  }}>
+                  <svg className="w-3.5 h-3.5 animate-spin" style={{ color: 'var(--primary)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
+                  </svg>
+                  <span className="text-xs font-medium" style={{ color: 'var(--primary)' }}>
+                    Envoi vers Google Drive&hellip;
+                  </span>
+                </div>
               )}
-            </div>
-          )}
-          {driveStatus === 'error' && (
-            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-3 mb-2" style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)' }}>
-              <svg className="w-3.5 h-3.5 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
-              </svg>
-              <span className="text-orange-400 text-xs font-medium">Drive non synchronis&eacute; (PDF local OK)</span>
-            </div>
-          )}
+              {driveStatus === 'ok' && (
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-3 mb-2"
+                  style={{
+                    background: 'color-mix(in srgb, var(--success) 12%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)',
+                  }}>
+                  <svg viewBox="0 0 87.3 78" className="w-3.5 h-3.5 shrink-0">
+                    <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L28.1 52H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                    <path d="M43.65 25L29.35 0c-1.35.8-2.5 1.9-3.3 3.3L1.2 47.5C.4 48.9 0 50.45 0 52h28.1z" fill="#00ac47"/>
+                    <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.2l5.9 11.75z" fill="#ea4335"/>
+                    <path d="M43.65 25L57.95 0H29.35z" fill="#00832d"/>
+                    <path d="M59.2 52h28.1L73.55 28.5 57.95 0 43.65 25z" fill="#2684fc"/>
+                    <path d="M28.1 52l-14.3 24.8c1.35.8 2.9 1.2 4.5 1.2h50.7c1.6 0 3.15-.45 4.5-1.2L59.2 52z" fill="#ffba00"/>
+                  </svg>
+                  {driveLink ? (
+                    <a href={driveLink} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-medium hover:underline"
+                      style={{ color: 'var(--success)' }}>
+                      Copie enregistr&eacute;e sur Google Drive &rarr;
+                    </a>
+                  ) : (
+                    <span className="text-xs font-medium" style={{ color: 'var(--success)' }}>
+                      Copie enregistr&eacute;e sur Google Drive
+                    </span>
+                  )}
+                </div>
+              )}
+              {driveStatus === 'error' && (
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-3 mb-2"
+                  style={{
+                    background: 'color-mix(in srgb, var(--destructive) 10%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--destructive) 30%, transparent)',
+                  }}>
+                  <svg className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--destructive)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                  </svg>
+                  <span className="text-xs font-medium" style={{ color: 'var(--destructive)' }}>
+                    Drive non synchronis&eacute; (PDF local OK)
+                  </span>
+                </div>
+              )}
 
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-1 mb-6" style={{ background: 'var(--accent-light)', border: '1px solid rgba(34,197,94,0.3)' }}>
-            <svg className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>
-              PDF t&eacute;l&eacute;charg&eacute; automatiquement
-            </span>
-          </div>
-
-          <button
-            onClick={handleDownloadAgain}
-            disabled={pdfLoading}
-            className="w-full flex items-center justify-center gap-2 text-xs font-medium py-2.5 px-4 rounded-xl transition-all duration-200 mb-5 disabled:opacity-50"
-            style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
-          >
-            {pdfLoading ? (
-              <>
-                <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
+              {/* Badge PDF téléchargé */}
+              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-1 mb-6"
+                style={{
+                  background: 'color-mix(in srgb, var(--success) 12%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)',
+                }}>
+                <svg className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--success)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                G&eacute;n&eacute;ration…
-              </>
-            ) : (
-              <>
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Re-t&eacute;l&eacute;charger le PDF
-              </>
-            )}
-          </button>
+                <span className="text-xs font-medium" style={{ color: 'var(--success)' }}>
+                  PDF t&eacute;l&eacute;charg&eacute; automatiquement
+                </span>
+              </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={resetForm}
-              className="flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: 'var(--accent)', color: '#ffffff' }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Nouvelle fiche
-            </button>
-            <Link
-              href="/tableau-de-bord"
-              className="flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3 px-4 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
-              </svg>
-              Tableau de bord
-            </Link>
-          </div>
+              {/* Re-télécharger */}
+              <button
+                onClick={handleDownloadAgain}
+                disabled={pdfLoading}
+                className="w-full flex items-center justify-center gap-2 text-xs font-medium py-2.5 px-4 rounded-xl transition-all duration-200 mb-5 disabled:opacity-50"
+                style={{
+                  background: 'var(--secondary)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--muted-foreground)',
+                }}
+              >
+                {pdfLoading ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                    G&eacute;n&eacute;ration&hellip;
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Re-t&eacute;l&eacute;charger le PDF
+                  </>
+                )}
+              </button>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={resetForm}
+                  className="flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: 'var(--primary)',
+                    color: 'var(--primary-foreground)',
+                    boxShadow: '0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent)',
+                  }}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  Nouvelle fiche
+                </button>
+                <Link
+                  href="/tableau-de-bord"
+                  className="flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3 px-4 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: 'var(--secondary)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--muted-foreground)',
+                  }}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                  </svg>
+                  Tableau de bord
+                </Link>
+              </div>
+            </div>
+          </FormCard>
         </div>
-      </main>
+      </PageContainer>
     )
   }
 
   /* ── formulaire ── */
   return (
-    <div className="min-h-screen relative" style={{ background: 'var(--bg-primary)' }}>
-      {/* Background decorators */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.05)' }} />
-        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full blur-3xl" style={{ background: 'rgba(34,197,94,0.03)' }} />
+    <PageContainer maxWidth="md">
+      {/* Blobs décoratifs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl"
+          style={{ background: 'color-mix(in srgb, var(--success) 5%, transparent)' }} />
+        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full blur-3xl"
+          style={{ background: 'color-mix(in srgb, var(--success) 3%, transparent)' }} />
       </div>
-      <main className="py-10 px-4">
-        <div className="max-w-2xl mx-auto">
 
-          {/* Carte formulaire */}
-          <div className="rounded-2xl p-6 sm:p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}>
-            <h1 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Qualification d&apos;appel</h1>
-            <p className="text-xs tracking-wide mb-7" style={{ color: 'var(--text-muted)' }}>
-              Remplissez les informations collect&eacute;es lors de l&apos;appel
-            </p>
+      <div className="relative z-10 space-y-6">
+        <FormSection
+          title="Qualification d'appel"
+          subtitle="Remplissez les informations collectées lors de l'appel"
+          icon={
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          }
+          iconBg="color-mix(in srgb, var(--primary) 12%, transparent)"
+          iconColor="var(--primary)"
+        >
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field>
-                  <Label>Nom du prospect</Label>
-                  <Input name="nom_prospect" value={form.nom_prospect} onChange={handleInput} placeholder="Ex : Ahmed Bah" />
-                </Field>
-                <Field>
-                  <Label>T&eacute;l&eacute;phone</Label>
-                  <Input name="telephone" value={form.telephone} onChange={handleInput} placeholder="Ex : +224 6XX XXX XXX" type="tel" />
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field>
-                  <Label>Source du contact</Label>
-                  <Select
-                    name="source"
-                    value={form.source}
-                    onChange={handleInput}
-                    options={['Appel', 'Facebook', 'WhatsApp', 'Site web', 'Apimo', 'Visite directe', 'Recommandation', 'Autre']}
-                  />
-                </Field>
-                <Field>
-                  <Label>Motif de la demande</Label>
-                  <Select
-                    name="motif"
-                    value={form.motif}
-                    onChange={handleInput}
-                    options={['Achat', 'Location', 'Vente', 'Syndic', 'Autre']}
-                  />
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field>
-                  <Label>Type de bien</Label>
-                  <Select
-                    name="type_bien"
-                    value={form.type_bien}
-                    onChange={handleInput}
-                    options={['Appartement', 'Villa', 'Terrain', 'Bureau', 'Commerce', 'Autre']}
-                  />
-                </Field>
-                <Field>
-                  <Label>Budget</Label>
-                  <Input name="budget" value={form.budget} onChange={handleInput} placeholder="Ex : 150 000 000 GNF" />
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field>
-                  <Label>Localisation souhait&eacute;e</Label>
-                  <Select
-                    name="localisation"
-                    value={form.localisation}
-                    onChange={handleInput}
-                    options={[
-                      'Cocody', 'Plateau', 'Marcory', 'Treichville', 'Adjamé',
-                      'Attécoubé', 'Yopougon', 'Abobo', 'Anyama', 'Bingerville',
-                      'Songon', 'Jacqueville', 'Port-Bouët', 'Koumassi', 'Vridi',
-                      'Grand-Bassam', 'Dabou', 'Autre',
-                    ]}
-                  />
-                </Field>
-                <Field>
-                  <Label>Niveau d&apos;urgence</Label>
-                  <Select
-                    name="urgence"
-                    value={form.urgence}
-                    onChange={handleInput}
-                    options={['Urgent', 'Normal', 'Pas pressé']}
-                  />
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field>
-                  <Label>Agent (votre nom)</Label>
-                  {agents.length > 0 ? (
-                    <Select
-                      name="agent"
-                      value={form.agent}
-                      onChange={handleInput}
-                      options={agents.map((a) => a.nom + (a.role ? ` — ${a.role}` : ''))}
-                    />
-                  ) : (
-                    <Input name="agent" value={form.agent} onChange={handleInput} placeholder="Ex : Fatoumata Bah" />
-                  )}
-                </Field>
-                <Field>
-                  <Label>Transmettre &agrave;</Label>
-                  <Input name="transmettre_a" value={form.transmettre_a} onChange={handleInput} placeholder="Ex : Mamadou Diallo" />
-                </Field>
-              </div>
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field>
-                <Label>Commentaire</Label>
-                <textarea
-                  name="commentaire"
-                  value={form.commentaire}
-                  onChange={handleInput}
-                  placeholder="Notes suppl&eacute;mentaires sur l&apos;appel&#8230;"
-                  rows={4}
-                  className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-all resize-none"
-                  style={{
-                    background: 'var(--bg-primary)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text-primary)',
-                  }}
-                />
+                <Label>Nom du prospect</Label>
+                <InputField name="nom_prospect" value={form.nom_prospect} onChange={handleInput}
+                  placeholder="Ex : Ahmed Bah" trailingIcon={IcoUser} />
               </Field>
+              <Field>
+                <Label>T&eacute;l&eacute;phone</Label>
+                <InputField name="telephone" value={form.telephone} onChange={handleInput}
+                  placeholder="Ex : +225 07 XX XX XX XX" type="tel" trailingIcon={IcoPhone} />
+              </Field>
+            </div>
 
-              {error && (
-                <div className="flex items-start gap-3 rounded-lg px-4 py-3" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.4)' }}>
-                  <svg className="w-4 h-4 mt-0.5 shrink-0" style={{ color: 'var(--destructive)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 8v4M12 16h.01" />
-                  </svg>
-                  <p className="text-xs leading-relaxed" style={{ color: 'var(--destructive)' }}>{error}</p>
-                </div>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Field>
+                <Label>Source du contact</Label>
+                <SelectField name="source" value={form.source} onChange={handleInput}
+                  options={['Appel', 'Facebook', 'WhatsApp', 'Site web', 'Apimo', 'Visite directe', 'Recommandation', 'Autre']} />
+              </Field>
+              <Field>
+                <Label>Motif de la demande</Label>
+                <SelectField name="motif" value={form.motif} onChange={handleInput}
+                  options={['Achat', 'Location', 'Vente', 'Syndic', 'Autre']} />
+              </Field>
+            </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3.5 px-6 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                  style={{ background: '#2563eb', color: '#ffffff', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
-                >
-                  {loading ? (
-                    <>
-                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                      </svg>
-                      Enregistrement et g&eacute;n&eacute;ration PDF&#8230;
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-                        <polyline points="17 21 17 13 7 13 7 21" />
-                        <polyline points="7 3 7 8 15 8" />
-                      </svg>
-                      Enregistrer la fiche
-                    </>
-                  )}
-                </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Field>
+                <Label>Type de bien</Label>
+                <SelectField name="type_bien" value={form.type_bien} onChange={handleInput}
+                  options={['Appartement', 'Villa', 'Terrain', 'Bureau', 'Commerce', 'Autre']} />
+              </Field>
+              <Field>
+                <Label>Budget</Label>
+                <InputField name="budget" value={form.budget} onChange={handleInput}
+                  placeholder="Ex : 150 000 000 FCFA" trailingIcon={IcoBudget} />
+              </Field>
+            </div>
 
-                <Link
-                  href="/"
-                  className="flex items-center justify-center gap-2 text-sm font-medium py-3.5 px-6 rounded-xl transition-all duration-200"
-                  style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
-                >
-                  Annuler
-                </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Field>
+                <Label>Localisation souhait&eacute;e</Label>
+                <SelectField name="localisation" value={form.localisation} onChange={handleInput}
+                  options={[
+                    'Cocody', 'Plateau', 'Marcory', 'Treichville', 'Adjamé',
+                    'Attécoubé', 'Yopougon', 'Abobo', 'Anyama', 'Bingerville',
+                    'Songon', 'Jacqueville', 'Port-Bouët', 'Koumassi', 'Vridi',
+                    'Grand-Bassam', 'Dabou', 'Autre',
+                  ]} />
+              </Field>
+              <Field>
+                <Label>Niveau d&apos;urgence</Label>
+                <SelectField name="urgence" value={form.urgence} onChange={handleInput}
+                  options={['Urgent', 'Normal', 'Pas pressé']} />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Field>
+                <Label>Agent (votre nom)</Label>
+                {agents.length > 0 ? (
+                  <SelectField name="agent" value={form.agent} onChange={handleInput}
+                    options={agents.map((a) => a.nom + (a.role ? ` — ${a.role}` : ''))} />
+                ) : (
+                  <InputField name="agent" value={form.agent} onChange={handleInput}
+                    placeholder="Ex : Fatoumata Bah" trailingIcon={IcoUser} />
+                )}
+              </Field>
+              <Field>
+                <Label>Transmettre &agrave;</Label>
+                <InputField name="transmettre_a" value={form.transmettre_a} onChange={handleInput}
+                  placeholder="Ex : Mamadou Diallo" trailingIcon={IcoForward} />
+              </Field>
+            </div>
+
+            <Field>
+              <Label>Commentaire</Label>
+              <CommentaireField
+                name="commentaire"
+                value={form.commentaire}
+                onChange={handleInput}
+              />
+            </Field>
+
+            {error && (
+              <div className="flex items-start gap-3 rounded-xl px-4 py-3"
+                style={{
+                  background: 'color-mix(in srgb, var(--destructive) 8%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--destructive) 40%, transparent)',
+                }}>
+                <svg className="w-4 h-4 mt-0.5 shrink-0" style={{ color: 'var(--destructive)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--destructive)' }}>{error}</p>
               </div>
+            )}
 
-            </form>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 flex items-center justify-center gap-2 font-semibold text-sm py-3.5 px-6 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background: 'var(--primary)',
+                  color: 'var(--primary-foreground)',
+                  boxShadow: '0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent)',
+                }}
+              >
+                {loading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                    Enregistrement et g&eacute;n&eacute;ration PDF&hellip;
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                      <polyline points="17 21 17 13 7 13 7 21"/>
+                      <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Enregistrer la fiche
+                  </>
+                )}
+              </button>
 
-          <p className="text-center text-xs tracking-widest mt-8" style={{ color: 'var(--text-muted)' }}>
-            &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
-          </p>
-        </div>
-      </main>
-    </div>
+              <Link
+                href="/"
+                className="flex items-center justify-center gap-2 text-sm font-medium py-3.5 px-6 rounded-full transition-all duration-200 hover:scale-[1.02]"
+                style={{
+                  background: 'var(--secondary)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--muted-foreground)',
+                }}
+              >
+                Annuler
+              </Link>
+            </div>
+
+          </form>
+        </FormSection>
+
+        <p className="text-center text-xs tracking-widest pb-4" style={{ color: 'var(--muted-foreground)' }}>
+          &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
+        </p>
+      </div>
+    </PageContainer>
+  )
+}
+
+/* ── textarea commentaire avec focus state ── */
+
+function CommentaireField({
+  name, value, onChange,
+}: {
+  name: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+}) {
+  const [focused, setFocused] = useState(false)
+  return (
+    <textarea
+      name={name}
+      value={value}
+      onChange={onChange}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      placeholder="Notes supplémentaires sur l'appel…"
+      rows={4}
+      className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all resize-none"
+      style={{
+        background: 'var(--input)',
+        border: `1px solid ${focused ? 'var(--ring)' : 'var(--input-border)'}`,
+        color: 'var(--foreground)',
+        boxShadow: focused ? '0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent)' : 'none',
+      }}
+    />
   )
 }
