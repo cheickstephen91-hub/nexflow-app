@@ -263,8 +263,9 @@ export default function Login() {
             <p
               className="text-xs leading-relaxed"
               style={{ color: 'var(--destructive)' }}
-              dangerouslySetInnerHTML={{ __html: error }}
-            />
+            >
+              {error}
+            </p>
           </div>
         )}
 

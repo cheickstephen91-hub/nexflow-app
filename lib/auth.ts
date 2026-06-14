@@ -115,16 +115,13 @@ export const authOptions: NextAuthOptions = {
 
       /* Relire le rôle depuis Supabase via service_role (bypass RLS) */
       const email = token.email
-      console.log('[JWT] email:', email)
       if (email) {
-        const { data, error } = await supabaseAdmin
+        const { data } = await supabaseAdmin
           .from('users')
           .select('role')
           .eq('email', email)
           .maybeSingle()
-        console.log('[JWT] role depuis Supabase:', data?.role, '| error:', error?.message)
         token.role = data?.role ?? null
-        console.log('[JWT] role assigné:', token.role)
       }
 
       return token
