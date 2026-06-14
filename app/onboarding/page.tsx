@@ -875,7 +875,7 @@ export default function Onboarding() {
         </div>
 
         <p className="text-center text-xs tracking-widest mt-8" style={{ color: '#94a3b8' }}>
-          &copy; {new Date().getFullYear()} NEXFLOW &middot; DIGITAL SOLUTIONS
+          &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
         </p>
       </div>
     </main>

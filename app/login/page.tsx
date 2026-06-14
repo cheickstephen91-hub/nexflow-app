@@ -413,7 +413,7 @@ export default function Login() {
         className="relative z-10 mt-8 text-xs tracking-widest"
         style={{ color: 'var(--muted-foreground)' }}
       >
-        &copy; {new Date().getFullYear()} NEXFLOW &middot; DIGITAL SOLUTIONS
+        &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
       </p>
 
     </main>

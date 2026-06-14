@@ -264,7 +264,7 @@ function HomeContent() {
 
       {/* Footer */}
       <p className="mt-12 text-xs tracking-widest text-center" style={{ color: 'var(--text-muted)' }}>
-        © {new Date().getFullYear()} NEXFLOW · DIGITAL SOLUTIONS
+        &copy; {new Date().getFullYear()}{' '}NEXFLOW &middot; DIGITAL SOLUTIONS
       </p>
     </div>
   )
