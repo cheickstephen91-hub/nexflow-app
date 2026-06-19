@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { supabase } from './supabase'
 import { supabaseAdmin } from './supabase-admin'
 import { validatePassword } from './password-strength'
+import { storeAndSendVerificationEmail } from './email-verification'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -50,20 +51,25 @@ export const authOptions: NextAuthOptions = {
           const hash = await bcrypt.hash(password, 10)
           const { error } = await supabase.from('users').insert([{
             email,
-            nom: nom || email,
-            password_hash: hash,
+            nom:                 nom || email,
+            password_hash:       hash,
             onboarding_complete: false,
+            email_verified:      false,
           }])
 
           if (error) throw new Error('Erreur lors de la création du compte.')
 
-          return { id: email, email, name: nom || email }
+          /* Envoyer l'email de vérification (non bloquant si Resend échoue) */
+          await storeAndSendVerificationEmail(email, nom || email)
+
+          /* Signal spécial : compte créé mais email non encore vérifié */
+          throw new Error('VERIFY_EMAIL_REQUIRED')
         }
 
         /* ── Connexion ── */
         const { data: user, error: dbError } = await supabase
           .from('users')
-          .select('id, email, nom, password_hash, role')
+          .select('id, email, nom, password_hash, role, email_verified')
           .eq('email', email)
           .maybeSingle()
 
@@ -82,6 +88,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error(
             'Ce compte est associé à Google. Utilisez le bouton "Continuer avec Google".'
           )
+        }
+
+        /* Bloquer si email non vérifié */
+        if (user.email_verified === false) {
+          throw new Error('VERIFY_EMAIL_REQUIRED')
         }
 
         const valid = await bcrypt.compare(password, user.password_hash)
@@ -103,8 +114,14 @@ export const authOptions: NextAuthOptions = {
         await supabaseAdmin
           .from('users')
           .upsert(
-            { email: user.email, nom: user.name, role: 'collaborateur' },
-            { onConflict: 'email', ignoreDuplicates: true }
+            {
+              email:          user.email,
+              nom:            user.name,
+              role:           'collaborateur',
+              email_verified: true,
+              email_verified_at: new Date().toISOString(),
+            },
+            { onConflict: 'email', ignoreDuplicates: false }
           )
       }
       return true

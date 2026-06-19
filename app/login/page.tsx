@@ -101,9 +101,12 @@ export default function Login() {
   const [email, setEmail]         = useState('')
   const [password, setPassword]   = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [nom, setNom]           = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState<string | null>(null)
+  const [nom, setNom]             = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState<string | null>(null)
+  const [verifyEmailPending, setVerifyEmailPending] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resent,    setResent]    = useState(false)
 
   /* Redirect if already authenticated — logique inchangée */
   useEffect(() => {
@@ -116,14 +119,20 @@ export default function Login() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setVerifyEmailPending(false)
+    setResent(false)
     setLoading(true)
     try {
       const result = await signIn('credentials', { email, password, nom, mode, redirect: false })
       if (result?.error) {
-        setError(result.error === 'CredentialsSignin'
-          ? (mode === 'signup' ? 'Erreur lors de la création du compte.' : 'Email ou mot de passe incorrect.')
-          : result.error
-        )
+        if (result.error === 'VERIFY_EMAIL_REQUIRED') {
+          setVerifyEmailPending(true)
+        } else {
+          setError(result.error === 'CredentialsSignin'
+            ? (mode === 'signup' ? 'Erreur lors de la création du compte.' : 'Email ou mot de passe incorrect.')
+            : result.error
+          )
+        }
       } else if (result?.ok) {
         window.location.href = '/'
       }
@@ -134,9 +143,24 @@ export default function Login() {
     }
   }
 
+  async function handleResendVerification() {
+    if (!email || resending) return
+    setResending(true)
+    setResent(false)
+    await fetch('/api/auth/send-verification', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email }),
+    })
+    setResending(false)
+    setResent(true)
+  }
+
   function switchMode(m: Mode) {
     setMode(m)
     setError(null)
+    setVerifyEmailPending(false)
+    setResent(false)
     setPassword('')
   }
 
@@ -251,6 +275,39 @@ export default function Login() {
               : 'Rejoignez Nexflow pour gérer vos fiches'}
           </p>
         </div>
+
+        {/* ── Panneau vérification email ── */}
+        {verifyEmailPending && (
+          <div
+            className="rounded-xl px-4 py-4 mb-4 space-y-3"
+            style={{ background: '#eff6ff', border: '1px solid #bfdbfe' }}
+          >
+            <div className="flex items-start gap-2.5">
+              <svg className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#2563eb' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <p className="text-xs leading-relaxed" style={{ color: '#1d4ed8' }}>
+                {mode === 'signup'
+                  ? <>Compte créé ! Un email de vérification a été envoyé à <strong>{email}</strong>. Cliquez sur le lien pour activer votre compte.</>
+                  : <>Veuillez vérifier votre adresse email avant de vous connecter. Un email vous a été envoyé à <strong>{email}</strong>.</>
+                }
+              </p>
+            </div>
+            {resent ? (
+              <p className="text-xs font-medium" style={{ color: '#16a34a' }}>✓ Email renvoyé — vérifiez votre boîte.</p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="text-xs font-semibold underline underline-offset-2 transition-opacity disabled:opacity-50"
+                style={{ color: '#2563eb' }}
+              >
+                {resending ? 'Envoi…' : 'Renvoyer l\'email de vérification'}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* ── Erreur ── */}
         {error && (
