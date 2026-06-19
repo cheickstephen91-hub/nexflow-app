@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { supabase } from './supabase'
 import { supabaseAdmin } from './supabase-admin'
+import { validatePassword } from './password-strength'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -42,6 +43,9 @@ export const authOptions: NextAuthOptions = {
             .maybeSingle()
 
           if (existing) throw new Error('Un compte existe déjà avec cet email.')
+
+          const pwdError = validatePassword(password)
+          if (pwdError) throw new Error(pwdError)
 
           const hash = await bcrypt.hash(password, 10)
           const { error } = await supabase.from('users').insert([{

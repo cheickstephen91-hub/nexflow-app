@@ -7,6 +7,8 @@ import { supabase }                       from '@/lib/supabase'
 import { getInvitationByToken, acceptInvitation, type Invitation } from '@/lib/invitations'
 import bcrypt                             from 'bcryptjs'
 import { NexflowLogo }                   from '@/components/ui/nexflow'
+import { PasswordStrengthIndicator }      from '@/components/ui/password-strength-indicator'
+import { getPasswordStrength, validatePassword } from '@/lib/password-strength'
 
 /* ── Icônes ────────────────────────────────────────────────────────────────── */
 
@@ -172,10 +174,8 @@ function ActivateContent() {
     if (!invitation) return
     setError(null)
 
-    if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.')
-      return
-    }
+    const pwdError = validatePassword(password)
+    if (pwdError) { setError(pwdError); return }
     if (password !== confirmPass) {
       setError('Les mots de passe ne correspondent pas.')
       return
@@ -389,10 +389,13 @@ function ActivateContent() {
           <PasswordField
             value={password}
             onChange={setPassword}
-            placeholder="Minimum 8 caractères"
+            placeholder="Créer un mot de passe fort"
             showPwd={showPwd}
             onToggle={() => setShowPwd((v) => !v)}
           />
+          {password.length > 0 && (
+            <PasswordStrengthIndicator password={password} />
+          )}
         </div>
 
         {/* Confirmation mot de passe */}
@@ -430,24 +433,29 @@ function ActivateContent() {
         )}
 
         {/* Bouton principal */}
+        {(() => {
+          const pwdOk    = getPasswordStrength(password).allPassed
+          const matchOk  = password === confirmPass && confirmPass.length > 0
+          const disabled = submitting || !pwdOk || !matchOk
+          return (
         <button
           type="submit"
-          disabled={submitting || !password || !confirmPass}
+          disabled={disabled}
           className="w-full flex items-center justify-center gap-2 rounded-full font-bold text-sm py-4 mt-2 transition-all duration-200"
           style={{
-            background:  (submitting || !password || !confirmPass) ? '#bfdbfe' : 'linear-gradient(135deg,#3b82f6 0%,#2563eb 60%,#1d4ed8 100%)',
-            color:       (submitting || !password || !confirmPass) ? 'rgba(255,255,255,0.7)' : '#fff',
-            boxShadow:   (submitting || !password || !confirmPass) ? 'none' : '0 8px 24px rgba(37,99,235,0.30)',
-            cursor:      (submitting || !password || !confirmPass) ? 'not-allowed' : 'pointer',
+            background:  disabled ? '#bfdbfe' : 'linear-gradient(135deg,#3b82f6 0%,#2563eb 60%,#1d4ed8 100%)',
+            color:       disabled ? 'rgba(255,255,255,0.7)' : '#fff',
+            boxShadow:   disabled ? 'none' : '0 8px 24px rgba(37,99,235,0.30)',
+            cursor:      disabled ? 'not-allowed' : 'pointer',
           }}
           onMouseEnter={(e) => {
-            if (!(submitting || !password || !confirmPass)) {
+            if (!disabled) {
               (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg,#2563eb,#1d4ed8)'
               ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'
             }
           }}
           onMouseLeave={(e) => {
-            if (!(submitting || !password || !confirmPass)) {
+            if (!disabled) {
               (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg,#3b82f6 0%,#2563eb 60%,#1d4ed8 100%)'
               ;(e.currentTarget as HTMLButtonElement).style.transform = 'none'
             }
@@ -459,6 +467,8 @@ function ActivateContent() {
             '✓ Activer mon compte'
           )}
         </button>
+          )
+        })()}
 
       </form>
     </div>

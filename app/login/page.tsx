@@ -5,6 +5,8 @@ import { useSession, signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { getUserProfile } from '@/lib/user-profile'
 import { NexflowLogo } from '@/components/ui/nexflow/nexflow-logo'
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator'
+import { getPasswordStrength } from '@/lib/password-strength'
 
 /* ─────────────────────────────────────────────────────────
    Login page — Nexflow v2
@@ -298,71 +300,83 @@ export default function Login() {
           />
 
           {/* Mot de passe */}
-          <InputField
-            id="login-password"
-            label="Mot de passe"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={setPassword}
-            placeholder={mode === 'signup' ? 'Minimum 8 caractères' : '••••••••'}
-            required
-            minLength={mode === 'signup' ? 8 : 1}
-            icon={IcoLock}
-            rightElement={
-              <button
-                type="button"
-                onClick={() => setShowPassword(v => !v)}
-                style={{ color: 'var(--muted-foreground)', flexShrink: 0, lineHeight: 0 }}
-                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
-              >
-                {showPassword ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                )}
-              </button>
-            }
-          />
+          <div>
+            <InputField
+              id="login-password"
+              label="Mot de passe"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={setPassword}
+              placeholder={mode === 'signup' ? 'Créer un mot de passe fort' : '••••••••'}
+              required
+              minLength={mode === 'signup' ? 8 : 1}
+              icon={IcoLock}
+              rightElement={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  style={{ color: 'var(--muted-foreground)', flexShrink: 0, lineHeight: 0 }}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPassword ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              }
+            />
+            {/* Indicateur de force — mode inscription uniquement */}
+            {mode === 'signup' && password.length > 0 && (
+              <PasswordStrengthIndicator password={password} />
+            )}
+          </div>
 
           {/* Bouton principal — forme pilule */}
-          <button
-            type="submit"
-            disabled={loading || !email || !password}
-            className="w-full flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 mt-1"
-            style={{
-              background:   loading || !email || !password ? 'var(--muted)' : 'var(--primary)',
-              color:        loading || !email || !password ? 'var(--muted-foreground)' : 'var(--primary-foreground)',
-              borderRadius: '9999px',
-              padding:      '0.875rem 1.5rem',
-              cursor:       loading || !email || !password ? 'not-allowed' : 'pointer',
-              boxShadow:    loading || !email || !password ? 'none' : '0 4px 14px rgba(37,99,235,0.35)',
-            }}
-            onMouseEnter={(e) => {
-              if (!loading && email && password) {
-                (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary-hover)'
-                ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!loading && email && password) {
-                (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary)'
-                ;(e.currentTarget as HTMLButtonElement).style.transform = ''
-              }
-            }}
-          >
-            {loading && IcoSpin}
-            {loading
-              ? (mode === 'signup' ? 'Création du compte...' : 'Connexion...')
-              : (mode === 'signup' ? 'Créer mon compte' : 'Se connecter')
-            }
-          </button>
+          {(() => {
+            const pwdOk = mode !== 'signup' || getPasswordStrength(password).allPassed
+            const disabled = loading || !email || !password || !pwdOk
+            return (
+              <button
+                type="submit"
+                disabled={disabled}
+                className="w-full flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 mt-1"
+                style={{
+                  background:   disabled ? 'var(--muted)' : 'var(--primary)',
+                  color:        disabled ? 'var(--muted-foreground)' : 'var(--primary-foreground)',
+                  borderRadius: '9999px',
+                  padding:      '0.875rem 1.5rem',
+                  cursor:       disabled ? 'not-allowed' : 'pointer',
+                  boxShadow:    disabled ? 'none' : '0 4px 14px rgba(37,99,235,0.35)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!disabled) {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary-hover)'
+                    ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!disabled) {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'var(--primary)'
+                    ;(e.currentTarget as HTMLButtonElement).style.transform = ''
+                  }
+                }}
+              >
+                {loading && IcoSpin}
+                {loading
+                  ? (mode === 'signup' ? 'Création du compte...' : 'Connexion...')
+                  : (mode === 'signup' ? 'Créer mon compte' : 'Se connecter')
+                }
+              </button>
+            )
+          })()}
         </form>
 
         {/* ── Séparateur ── */}
