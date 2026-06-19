@@ -10,14 +10,21 @@ export type Invitation = {
   accepted?: boolean
   created_at?: string
   expires_at?: string
+  agency_id?: string
 }
 
-/* ── Récupérer toutes les invitations (pour la page équipe) ── */
-export async function getInvitations(): Promise<Invitation[]> {
-  const { data } = await supabase
+/* ── Récupérer les invitations d'une agence (pour la page équipe) ── */
+export async function getInvitations(agencyId?: string): Promise<Invitation[]> {
+  let query = supabase
     .from('invitations')
     .select('*')
     .order('created_at', { ascending: false })
+
+  if (agencyId) {
+    query = query.eq('agency_id', agencyId)
+  }
+
+  const { data } = await query
   return data ?? []
 }
 

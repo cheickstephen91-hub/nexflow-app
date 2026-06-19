@@ -113,15 +113,29 @@ export const authOptions: NextAuthOptions = {
         token.expires_at    = account.expires_at
       }
 
-      /* Relire le rôle depuis Supabase via service_role (bypass RLS) */
+      /* Relire le rôle et l'agency_id depuis Supabase via service_role (bypass RLS) */
       const email = token.email
       if (email) {
-        const { data } = await supabaseAdmin
+        const { data, error } = await supabaseAdmin
           .from('users')
-          .select('role')
+          .select('role, agency_id')
           .eq('email', email)
           .maybeSingle()
-        token.role = data?.role ?? null
+
+        if (error) {
+          /* Colonne agency_id absente (migration SQL non encore exécutée) :
+             fallback sur la requête role uniquement pour ne pas casser l'auth */
+          const { data: fallback } = await supabaseAdmin
+            .from('users')
+            .select('role')
+            .eq('email', email)
+            .maybeSingle()
+          token.role      = fallback?.role      ?? undefined
+          token.agency_id = undefined
+        } else {
+          token.role      = data?.role      ?? undefined
+          token.agency_id = data?.agency_id ?? undefined
+        }
       }
 
       return token
@@ -130,6 +144,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.access_token = token.access_token as string | undefined
       session.role         = token.role         as string | undefined
+      session.agency_id    = token.agency_id    as string | undefined
       return session
     },
 

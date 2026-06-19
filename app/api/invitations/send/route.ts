@@ -19,6 +19,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Accès refusé — directeur requis' }, { status: 403 })
   }
 
+  const agencyId = (session as { agency_id?: string }).agency_id
+  if (!agencyId) {
+    return NextResponse.json({ error: 'Agence non trouvée pour ce compte.' }, { status: 400 })
+  }
+
   /* ── Payload ── */
   const body = await req.json() as { nom?: string; email?: string; role?: string }
   const { nom, email, role } = body
@@ -46,6 +51,7 @@ export async function POST(req: NextRequest) {
     .from('invitations')
     .select('id, accepted')
     .eq('email', email)
+    .eq('agency_id', agencyId)
     .eq('accepted', false)
     .maybeSingle()
 
@@ -66,6 +72,7 @@ export async function POST(req: NextRequest) {
     role,
     token,
     invited_by: invitedBy,
+    agency_id:  agencyId,
   }])
 
   if (dbError) {

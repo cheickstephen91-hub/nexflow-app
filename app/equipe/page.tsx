@@ -116,7 +116,8 @@ export default function Equipe() {
   const [editRoleValue,  setEditRoleValue]  = useState<string>('')
   const [savingRole,     setSavingRole]     = useState(false)
 
-  const role = (session as { role?: string } | null)?.role
+  const role      = (session as { role?: string;  agency_id?: string } | null)?.role
+  const agencyId  = (session as { role?: string;  agency_id?: string } | null)?.agency_id
 
   useEffect(() => {
     if (status === 'loading') return
@@ -127,9 +128,16 @@ export default function Equipe() {
     if (status !== 'authenticated') return
     async function load() {
       setLoading(true)
+      let usersQuery = supabase
+        .from('users')
+        .select('email, nom, role, onboarding_complete, created_at')
+        .order('created_at', { ascending: true })
+
+      if (agencyId) usersQuery = usersQuery.eq('agency_id', agencyId)
+
       const [{ data: users }, invs] = await Promise.all([
-        supabase.from('users').select('email, nom, role, onboarding_complete, created_at').order('created_at', { ascending: true }),
-        getInvitations(),
+        usersQuery,
+        getInvitations(agencyId),
       ])
       setMembers((users as Member[]) ?? [])
       setInvitations(invs.filter((i) => !i.accepted))
@@ -161,7 +169,7 @@ export default function Equipe() {
       setErrorMsg(data.error)
     } else {
       setSuccessMsg(data.warning ? `Invitation enregistrée. ${data.warning}` : `Invitation envoyée à ${invEmail}.`)
-      const invs = await getInvitations()
+      const invs = await getInvitations(agencyId)
       setInvitations(invs.filter((i) => !i.accepted))
       setInvNom(''); setInvEmail(''); setInvRole('collaborateur')
       setShowForm(false)

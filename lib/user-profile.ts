@@ -27,6 +27,7 @@ export type UserProfile = {
   rapport_email?: string
   onboarding_complete?: boolean
   role?: string
+  agency_id?: string
 }
 
 export type Agent = {
@@ -49,7 +50,8 @@ export async function getUserProfile(email: string): Promise<UserProfile | null>
 }
 
 export async function upsertUserProfile(profile: UserProfile): Promise<{ error: string | null }> {
-  let finalRole = profile.role
+  let finalRole    = profile.role
+  let finalAgency  = profile.agency_id
 
   /* Premier utilisateur = admin : déclenché quand onboarding_complete passe à true */
   if (profile.onboarding_complete && !finalRole) {
@@ -61,7 +63,33 @@ export async function upsertUserProfile(profile: UserProfile): Promise<{ error: 
     finalRole = (count === 0) ? 'directeur' : 'collaborateur'
   }
 
-  const toUpsert = { ...profile, ...(finalRole ? { role: finalRole } : {}) }
+  /* Création de l'agence lors du premier onboarding (directeur ou manager) */
+  if (profile.onboarding_complete && !finalAgency && profile.nom_entreprise) {
+    const { data: agency, error: agencyError } = await supabase
+      .from('agencies')
+      .insert([{
+        nom:           profile.nom_entreprise,
+        nom_entreprise: profile.nom_entreprise,
+        secteur:       profile.secteur ?? 'immobilier',
+        pays:          profile.pays,
+        logo_url:      profile.logo_url,
+        email_contact: profile.email_contact,
+        telephone:     profile.telephone,
+        site_web:      profile.site_web,
+        adresse:       profile.adresse,
+      }])
+      .select('id')
+      .single()
+
+    if (agencyError) return { error: agencyError.message }
+    finalAgency = agency.id
+  }
+
+  const toUpsert = {
+    ...profile,
+    ...(finalRole   ? { role:      finalRole   } : {}),
+    ...(finalAgency ? { agency_id: finalAgency } : {}),
+  }
 
   const { error } = await supabase
     .from('users')

@@ -19,6 +19,20 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'ID invitation manquant' }, { status: 400 })
   }
 
+  /* ── Vérifier que l'invitation appartient à la même agence ── */
+  const agencyId = (session as { agency_id?: string }).agency_id
+  if (agencyId) {
+    const { data: inv } = await supabase
+      .from('invitations')
+      .select('agency_id')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (inv && inv.agency_id && inv.agency_id !== agencyId) {
+      return NextResponse.json({ error: 'Accès refusé — invitation hors agence.' }, { status: 403 })
+    }
+  }
+
   /* ── Suppression ── */
   const { error } = await supabase.from('invitations').delete().eq('id', id)
   if (error) {

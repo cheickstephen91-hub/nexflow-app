@@ -24,6 +24,20 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Vous ne pouvez pas supprimer votre propre compte.' }, { status: 400 })
   }
 
+  /* ── Vérifier que la cible appartient à la même agence ── */
+  const agencyId = (session as { agency_id?: string }).agency_id
+  if (agencyId) {
+    const { data: target } = await supabase
+      .from('users')
+      .select('agency_id')
+      .eq('email', email)
+      .maybeSingle()
+
+    if (target?.agency_id && target.agency_id !== agencyId) {
+      return NextResponse.json({ error: 'Accès refusé — membre hors agence.' }, { status: 403 })
+    }
+  }
+
   /* ── Suppression ── */
   const { error } = await supabase.from('users').delete().eq('email', email)
   if (error) {

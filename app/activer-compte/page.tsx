@@ -194,21 +194,27 @@ function ActivateContent() {
         .maybeSingle()
 
       if (existing) {
-        /* Mise à jour : ajout du mot de passe et du rôle */
+        /* Mise à jour : ajout du mot de passe, du rôle et de l'agence */
         const { error: updErr } = await supabase
           .from('users')
-          .update({ password_hash: hash, role: invitation.role, onboarding_complete: true })
+          .update({
+            password_hash:       hash,
+            role:                invitation.role,
+            onboarding_complete: true,
+            agency_id:           invitation.agency_id ?? null,
+          })
           .eq('email', invitation.email)
 
         if (updErr) throw new Error(updErr.message)
       } else {
-        /* Création du compte */
+        /* Création du compte avec rattachement à l'agence de l'invitant */
         const { error: insErr } = await supabase.from('users').insert([{
           email:               invitation.email,
           nom:                 invitation.nom,
           password_hash:       hash,
           role:                invitation.role,
           onboarding_complete: true,
+          agency_id:           invitation.agency_id ?? null,
         }])
 
         if (insErr) throw new Error(insErr.message)
