@@ -178,15 +178,30 @@ export async function POST(req: NextRequest) {
 </html>
 `
 
-  /* ── Vérifier que la clé API est définie ── */
+  /* ── Vérifier que les variables Resend sont définies ── */
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
-    console.error('[Resend] RESEND_API_KEY est absent de .env.local')
+    console.error('[INVITE] RESEND_API_KEY absent — email invitation non envoyé')
     return NextResponse.json(
       { warning: 'Invitation créée mais RESEND_API_KEY manquant — email non envoyé.' },
       { status: 207 }
     )
   }
+
+  const resendFrom = process.env.RESEND_FROM_EMAIL
+  if (!resendFrom) {
+    console.error('[INVITE] RESEND_FROM_EMAIL absent — email invitation non envoyé')
+    return NextResponse.json(
+      { warning: 'Invitation créée mais RESEND_FROM_EMAIL manquant — email non envoyé.' },
+      { status: 207 }
+    )
+  }
+
+  console.log('[INVITE] Tentative envoi', {
+    to:         email,
+    from:       resendFrom,
+    hasApiKey:  !!resendApiKey,
+  })
 
   /* ── Appel Resend ── */
   let resendRes: Response
@@ -198,14 +213,14 @@ export async function POST(req: NextRequest) {
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from:    'onboarding@resend.dev',
+        from:    resendFrom,
         to:      [email],
         subject: `Invitation à rejoindre ${entreprise} sur Nexflow`,
         html:    emailHtml,
       }),
     })
   } catch (fetchErr) {
-    console.error('[Resend] Erreur réseau :', fetchErr)
+    console.error('[INVITE] Erreur réseau Resend :', fetchErr)
     return NextResponse.json(
       { warning: 'Invitation créée mais erreur réseau lors de l\'envoi email.' },
       { status: 207 }
@@ -214,16 +229,13 @@ export async function POST(req: NextRequest) {
 
   /* ── Lire la réponse Resend ── */
   const resendBody = await resendRes.text()
+  console.log('[INVITE] Réponse Resend', { status: resendRes.status, body: resendBody })
 
   if (!resendRes.ok) {
     console.error(
-      `[Resend] Échec envoi email — HTTP ${resendRes.status} ${resendRes.statusText}\n` +
-      `  to: ${email}\n` +
-      `  body: ${resendBody}`
+      `[INVITE] Échec envoi email — HTTP ${resendRes.status} ${resendRes.statusText}\n` +
+      `  to: ${email}\n  from: ${resendFrom}\n  body: ${resendBody}`
     )
-    /* ⚠️ NOTE : Sur le plan gratuit Resend, onboarding@resend.dev ne peut envoyer     */
-    /* qu'à l'adresse email du propriétaire du compte Resend. Pour envoyer à n'importe  */
-    /* quelle adresse, vérifiez un domaine dans le dashboard Resend.                    */
     return NextResponse.json(
       {
         warning: 'Invitation créée mais échec de l\'envoi email.',
@@ -234,6 +246,6 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  console.log(`[Resend] Email envoyé à ${email} — réponse : ${resendBody}`)
+  console.log(`[INVITE] Email envoyé à ${email} — réponse : ${resendBody}`)
   return NextResponse.json({ success: true })
 }

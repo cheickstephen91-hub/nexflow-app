@@ -44,9 +44,21 @@ export async function storeAndSendVerificationEmail(
   /* Envoyer via Resend */
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
-    console.warn('[Resend] RESEND_API_KEY absent — email de vérification non envoyé')
+    console.warn('[EMAIL VERIFY] RESEND_API_KEY absent — email de vérification non envoyé')
     return { error: null, emailSent: false }
   }
+
+  const resendFrom = process.env.RESEND_FROM_EMAIL
+  if (!resendFrom) {
+    console.warn('[EMAIL VERIFY] RESEND_FROM_EMAIL absent — email de vérification non envoyé')
+    return { error: null, emailSent: false }
+  }
+
+  console.log('[EMAIL VERIFY] Tentative envoi', {
+    email,
+    from:      resendFrom,
+    hasApiKey: !!resendApiKey,
+  })
 
   try {
     const res = await fetch('https://api.resend.com/emails', {
@@ -56,20 +68,22 @@ export async function storeAndSendVerificationEmail(
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from:    process.env.RESEND_FROM_EMAIL!,
+        from:    resendFrom,
         to:      [email],
         subject: 'Vérifiez votre adresse email — Nexflow',
         html:    buildVerificationEmailHtml(nom, link),
       }),
     })
 
+    const result = await res.text()
+    console.log('[EMAIL VERIFY] Réponse Resend', { status: res.status, body: result })
+
     if (!res.ok) {
-      const body = await res.text()
-      console.error(`[Resend] Échec envoi vérification — HTTP ${res.status}: ${body}`)
+      console.error(`[EMAIL VERIFY] Échec envoi vérification — HTTP ${res.status}: ${result}`)
       return { error: null, emailSent: false }
     }
   } catch (err) {
-    console.error('[Resend] Erreur réseau :', err)
+    console.error('[EMAIL VERIFY] Erreur réseau Resend :', err)
     return { error: null, emailSent: false }
   }
 
